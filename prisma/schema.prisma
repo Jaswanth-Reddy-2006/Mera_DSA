@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Problem {
+  id               String            @id @default(uuid())
+  title            String
+  platform         String            @default("LeetCode")
+  problemUrl       String?
+  difficulty       String            @default("Medium")
+  topic            String            @default("Arrays")
+  subtopic         String?
+  pattern          String?
+  status           String            @default("Solved")
+  rating           Int               @default(5)
+  timeTakenMinutes Int?              @default(20)
+  mistakes         String?
+  notes            String?
+  dryRun           String?
+  timeComplexity   String?
+  spaceComplexity  String?
+  interviewTips    String?
+  isFavorite       Boolean           @default(false)
+  solvedDate       DateTime          @default(now())
+  lastRevisedAt    DateTime          @default(now())
+  revisionCount    Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  solutions        ProblemSolution[]
+  revisionLogs     RevisionLog[]
+  tags             ProblemTag[]
+  sourceRelations  ProblemRelation[] @relation("SourceRelations")
+  targetRelations  ProblemRelation[] @relation("TargetRelations")
+}
+
+model ProblemSolution {
+  id        String   @id @default(uuid())
+  problemId String
+  type      String   // BRUTE, BETTER, OPTIMAL, ALTERNATIVE
+  language  String   @default("cpp")
+  code      String
+  title     String?
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model RevisionLog {
+  id            String   @id @default(uuid())
+  problemId     String
+  revisedAt     DateTime @default(now())
+  qualityRating Int      @default(5)
+  notes         String?
+  problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model Tag {
+  id       String       @id @default(uuid())
+  name     String       @unique
+  problems ProblemTag[]
+}
+
+model ProblemTag {
+  id        String  @id @default(uuid())
+  problemId String
+  tagId     String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, tagId])
+}
+
+model FormulaCategory {
+  id        String        @id @default(uuid())
+  name      String
+  icon      String?
+  order     Int           @default(0)
+  items     FormulaItem[]
+}
+
+model FormulaItem {
+  id             String          @id @default(uuid())
+  categoryId     String
+  title          String
+  syntax         String
+  description    String?
+  codeSnippet    String?
+  commonMistakes String?
+  category       FormulaCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model ProblemRelation {
+  id              String   @id @default(uuid())
+  sourceProblemId String
+  targetProblemId String
+  relationType    String
+  sourceProblem   Problem  @relation("SourceRelations", fields: [sourceProblemId], references: [id], onDelete: Cascade)
+  targetProblem   Problem  @relation("TargetRelations", fields: [targetProblemId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceProblemId, targetProblemId])
+}
