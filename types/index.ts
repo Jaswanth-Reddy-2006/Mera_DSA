@@ -10,6 +10,8 @@ export interface ProblemSolutionData {
   language: SolutionLanguage;
   code: string;
   title?: string;
+  timeComplexity?: string | null;
+  spaceComplexity?: string | null;
 }
 
 export interface ProblemTagData {
@@ -22,6 +24,7 @@ export interface ProblemData {
   title: string;
   platform: Platform;
   problemUrl?: string | null;
+  problemDescription?: string | null;
   difficulty: Difficulty;
   topic: string;
   subtopic?: string | null;

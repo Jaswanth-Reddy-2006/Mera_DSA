@@ -307,7 +307,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             />
           </div>
 
-          {/* Solutions Storage Section with Hybrid Custom/Predefined Complexities */}
+          {/* Solutions Storage Section with Exhaustive Complexities */}
           <div className="space-y-3 border-t border-slate-800 pt-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-slate-200 flex items-center gap-1.5 text-xs">
@@ -363,56 +363,88 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
               height="180px"
             />
 
-            {/* Hybrid Custom Input + Predefined Datalist for Time & Space Complexity */}
+            {/* Exhaustive Time & Space Complexity Controls */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl">
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-[11px]">
                   <Clock className="w-3.5 h-3.5 text-amber-400" /> Time Complexity ({currentSol.title})
                 </label>
-                <input
-                  type="text"
-                  list="time-complexity-list"
-                  placeholder="Select or type custom e.g. O(V + E)"
-                  value={currentSol.timeComplexity}
-                  onChange={(e) => {
-                    const updated = [...solutions];
-                    updated[activeTabIdx].timeComplexity = e.target.value;
-                    setSolutions(updated);
-                  }}
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-amber-300 font-mono text-xs focus:outline-none focus:border-amber-500 font-semibold"
-                />
-                <datalist id="time-complexity-list">
-                  {TIME_COMPLEXITY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </datalist>
+                <div className="space-y-1">
+                  <select
+                    value={TIME_COMPLEXITY_OPTIONS.some((o) => o.value === currentSol.timeComplexity) ? currentSol.timeComplexity : 'CUSTOM'}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const updated = [...solutions];
+                      if (val !== 'CUSTOM') {
+                        updated[activeTabIdx].timeComplexity = val;
+                      }
+                      setSolutions(updated);
+                    }}
+                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-amber-300 font-mono text-xs focus:outline-none"
+                  >
+                    {TIME_COMPLEXITY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                    <option value="CUSTOM">Custom / Type My Own Complexity...</option>
+                  </select>
+
+                  {(!TIME_COMPLEXITY_OPTIONS.some((o) => o.value === currentSol.timeComplexity) || currentSol.timeComplexity === '') && (
+                    <input
+                      type="text"
+                      placeholder="Type custom complexity e.g. O(n*m)"
+                      value={currentSol.timeComplexity}
+                      onChange={(e) => {
+                        const updated = [...solutions];
+                        updated[activeTabIdx].timeComplexity = e.target.value;
+                        setSolutions(updated);
+                      }}
+                      className="w-full px-2.5 py-1 bg-slate-950 border border-amber-800/60 rounded-lg text-amber-300 font-mono text-xs focus:outline-none font-bold placeholder-slate-600"
+                    />
+                  )}
+                </div>
               </div>
 
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-[11px]">
                   <HardDrive className="w-3.5 h-3.5 text-purple-400" /> Space Complexity ({currentSol.title})
                 </label>
-                <input
-                  type="text"
-                  list="space-complexity-list"
-                  placeholder="Select or type custom e.g. O(K)"
-                  value={currentSol.spaceComplexity}
-                  onChange={(e) => {
-                    const updated = [...solutions];
-                    updated[activeTabIdx].spaceComplexity = e.target.value;
-                    setSolutions(updated);
-                  }}
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-purple-300 font-mono text-xs focus:outline-none focus:border-purple-500 font-semibold"
-                />
-                <datalist id="space-complexity-list">
-                  {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </datalist>
+                <div className="space-y-1">
+                  <select
+                    value={SPACE_COMPLEXITY_OPTIONS.some((o) => o.value === currentSol.spaceComplexity) ? currentSol.spaceComplexity : 'CUSTOM'}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const updated = [...solutions];
+                      if (val !== 'CUSTOM') {
+                        updated[activeTabIdx].spaceComplexity = val;
+                      }
+                      setSolutions(updated);
+                    }}
+                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-purple-300 font-mono text-xs focus:outline-none"
+                  >
+                    {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                    <option value="CUSTOM">Custom / Type My Own Space...</option>
+                  </select>
+
+                  {(!SPACE_COMPLEXITY_OPTIONS.some((o) => o.value === currentSol.spaceComplexity) || currentSol.spaceComplexity === '') && (
+                    <input
+                      type="text"
+                      placeholder="Type custom space e.g. O(n*m)"
+                      value={currentSol.spaceComplexity}
+                      onChange={(e) => {
+                        const updated = [...solutions];
+                        updated[activeTabIdx].spaceComplexity = e.target.value;
+                        setSolutions(updated);
+                      }}
+                      className="w-full px-2.5 py-1 bg-slate-950 border border-purple-800/60 rounded-lg text-purple-300 font-mono text-xs focus:outline-none font-bold placeholder-slate-600"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>

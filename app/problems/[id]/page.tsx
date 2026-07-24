@@ -435,7 +435,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
               height="360px"
             />
 
-            {/* Hybrid Custom Input + Datalist for Time & Space Complexity */}
+            {/* Exhaustive Time & Space Complexity Controls */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl">
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-xs">
@@ -446,27 +446,41 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                     {activeSol.timeComplexity || 'O(N)'}
                   </div>
                 ) : (
-                  <>
-                    <input
-                      type="text"
-                      list="time-complexity-list-details"
-                      placeholder="Select or type custom e.g. O(V + E)"
-                      value={activeSol.timeComplexity || 'O(N)'}
+                  <div className="space-y-1.5">
+                    <select
+                      value={TIME_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.timeComplexity) ? activeSol.timeComplexity : 'CUSTOM'}
                       onChange={(e) => {
+                        const val = e.target.value;
                         const updated = [...solutions];
-                        updated[activeTabIdx].timeComplexity = e.target.value;
+                        if (val !== 'CUSTOM') {
+                          updated[activeTabIdx].timeComplexity = val;
+                        }
                         setSolutions(updated);
                       }}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs focus:outline-none focus:border-amber-500 font-bold"
-                    />
-                    <datalist id="time-complexity-list-details">
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs focus:outline-none font-bold"
+                    >
                       {TIME_COMPLEXITY_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
                           {opt.label}
                         </option>
                       ))}
-                    </datalist>
-                  </>
+                      <option value="CUSTOM">Custom / Type My Own Complexity...</option>
+                    </select>
+
+                    {(!TIME_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.timeComplexity) || activeSol.timeComplexity === '') && (
+                      <input
+                        type="text"
+                        placeholder="Type custom complexity e.g. O(n*m)"
+                        value={activeSol.timeComplexity || ''}
+                        onChange={(e) => {
+                          const updated = [...solutions];
+                          updated[activeTabIdx].timeComplexity = e.target.value;
+                          setSolutions(updated);
+                        }}
+                        className="w-full px-3 py-1.5 bg-slate-950 border border-amber-800/60 rounded-xl text-amber-300 font-mono text-xs focus:outline-none font-bold placeholder-slate-600"
+                      />
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -479,27 +493,41 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                     {activeSol.spaceComplexity || 'O(1)'}
                   </div>
                 ) : (
-                  <>
-                    <input
-                      type="text"
-                      list="space-complexity-list-details"
-                      placeholder="Select or type custom e.g. O(K)"
-                      value={activeSol.spaceComplexity || 'O(1)'}
+                  <div className="space-y-1.5">
+                    <select
+                      value={SPACE_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.spaceComplexity) ? activeSol.spaceComplexity : 'CUSTOM'}
                       onChange={(e) => {
+                        const val = e.target.value;
                         const updated = [...solutions];
-                        updated[activeTabIdx].spaceComplexity = e.target.value;
+                        if (val !== 'CUSTOM') {
+                          updated[activeTabIdx].spaceComplexity = val;
+                        }
                         setSolutions(updated);
                       }}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs focus:outline-none focus:border-purple-500 font-bold"
-                    />
-                    <datalist id="space-complexity-list-details">
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs focus:outline-none font-bold"
+                    >
                       {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
                           {opt.label}
                         </option>
                       ))}
-                    </datalist>
-                  </>
+                      <option value="CUSTOM">Custom / Type My Own Space...</option>
+                    </select>
+
+                    {(!SPACE_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.spaceComplexity) || activeSol.spaceComplexity === '') && (
+                      <input
+                        type="text"
+                        placeholder="Type custom space e.g. O(n*m)"
+                        value={activeSol.spaceComplexity || ''}
+                        onChange={(e) => {
+                          const updated = [...solutions];
+                          updated[activeTabIdx].spaceComplexity = e.target.value;
+                          setSolutions(updated);
+                        }}
+                        className="w-full px-3 py-1.5 bg-slate-950 border border-purple-800/60 rounded-xl text-purple-300 font-mono text-xs focus:outline-none font-bold placeholder-slate-600"
+                      />
+                    )}
+                  </div>
                 )}
               </div>
             </div>
