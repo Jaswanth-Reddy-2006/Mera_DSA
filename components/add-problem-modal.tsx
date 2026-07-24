@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Plus, Sparkles, Code2, Link as LinkIcon, Wand2 } from 'lucide-react';
+import { X, Plus, Sparkles, Code2, Link as LinkIcon, Wand2, BookOpen } from 'lucide-react';
 import MonacoCodeEditor from './monaco-code-editor';
+import MarkdownEditor from './markdown-editor';
 import { parseProblemUrl } from '@/lib/url-parser';
 
 interface AddProblemModalProps {
@@ -21,6 +22,7 @@ interface SolutionItem {
 export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProblemModalProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [fetchingMetadata, setFetchingMetadata] = useState(false);
 
   // Form metadata
   const [formData, setFormData] = useState({
@@ -32,9 +34,6 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
     categories: '',
     subtopic: '',
     pattern: '',
-    rating: 7,
-    timeTakenMinutes: 20,
-    mistakes: '',
     notes: '',
   });
 
@@ -49,16 +48,48 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
 
   if (!isOpen) return null;
 
-  // Auto-extract title & platform whenever URL changes
-  const handleUrlChange = (url: string) => {
-    const { title: extractedTitle, platform: extractedPlatform } = parseProblemUrl(url);
+  // Auto-fetch metadata & description from server API when URL is entered
+  const handleUrlChange = async (url: string) => {
+    setFormData((prev) => ({ ...prev, problemUrl: url }));
+    if (!url.trim()) return;
 
+    // Quick local parse first for immediate response
+    const localParsed = parseProblemUrl(url);
     setFormData((prev) => ({
       ...prev,
-      problemUrl: url,
-      title: extractedTitle || prev.title,
-      platform: extractedPlatform || prev.platform,
+      title: localParsed.title || prev.title,
+      platform: localParsed.platform || prev.platform,
+      categories: localParsed.categories.join(', '),
+      topic: localParsed.topic,
     }));
+
+    // Fetch rich metadata & problem statement from /api/fetch-problem
+    if (url.includes('leetcode.com')) {
+      setFetchingMetadata(true);
+      try {
+        const res = await fetch('/api/fetch-problem', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setFormData((prev) => ({
+            ...prev,
+            title: data.title || prev.title,
+            platform: data.platform || prev.platform,
+            categories: data.categories ? data.categories.join(', ') : prev.categories,
+            topic: data.topic || prev.topic,
+            notes: data.description || prev.notes,
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching problem details:', err);
+      } finally {
+        setFetchingMetadata(false);
+      }
+    }
   };
 
   // Add Optimal 2, Optimal 3, etc.
@@ -105,6 +136,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          rating: 5,
           categories: categoriesArray.length > 0 ? categoriesArray : [formData.topic || 'Arrays'],
           solutions: validSolutions,
         }),
@@ -126,13 +158,13 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
   const currentSol = solutions[activeTabIdx] || solutions[0];
 
   return (
-    <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 font-sans animate-fade-in">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh]">
+    <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 font-sans animate-fade-in">
+      <div className="bg-slate-900 border border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
         {/* Modal Header */}
-        <div className="p-3.5 sm:p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+        <div className="p-3 sm:p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80 shrink-0">
           <div className="flex items-center gap-2">
             <Wand2 className="w-4 h-4 text-cyan-400" />
-            <h3 className="font-bold text-sm sm:text-base text-slate-100">Add New Problem Entry (C++)</h3>
+            <h3 className="font-bold text-xs sm:text-base text-slate-100">Add New Problem Entry (C++)</h3>
           </div>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-300 p-1 rounded-lg">
             <X className="w-5 h-5" />
@@ -140,12 +172,20 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 text-xs">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-4 overflow-y-auto flex-1 text-xs">
           {/* 1. Problem Link (URL) FIRST */}
-          <div className="p-3.5 bg-cyan-950/30 border border-cyan-900/40 rounded-2xl space-y-2">
-            <label className="block text-cyan-300 font-bold flex items-center gap-1.5 text-xs">
-              <LinkIcon className="w-4 h-4 text-cyan-400" /> Paste Problem URL (Auto-Extracts Title & Platform) *
-            </label>
+          <div className="p-3 sm:p-4 bg-cyan-950/30 border border-cyan-900/40 rounded-2xl space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-cyan-300 font-bold flex items-center gap-1.5 text-xs">
+                <LinkIcon className="w-4 h-4 text-cyan-400" /> Paste Problem URL (Auto-Extracts Question, Topics & Examples) *
+              </label>
+              {fetchingMetadata && (
+                <span className="text-[10px] text-cyan-400 font-semibold animate-pulse flex items-center gap-1">
+                  <div className="w-3 h-3 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                  Fetching LeetCode Details...
+                </span>
+              )}
+            </div>
             <input
               type="url"
               required
@@ -160,7 +200,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
           {/* Auto-extracted Title & Platform */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-slate-400 font-semibold mb-1">Extracted Problem Title *</label>
+              <label className="block text-slate-400 font-semibold mb-1">Problem Title *</label>
               <input
                 type="text"
                 required
@@ -202,10 +242,10 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Categories (Comma separated)</label>
+              <label className="block text-slate-400 font-semibold mb-1">Topics / Categories (Comma separated)</label>
               <input
                 type="text"
-                placeholder="Arrays, HashMap"
+                placeholder="Arrays, HashMap, Two Pointers"
                 value={formData.categories}
                 onChange={(e) =>
                   setFormData({
@@ -228,6 +268,18 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
                 className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none text-xs"
               />
             </div>
+          </div>
+
+          {/* Key Observations & Notes (Asked in creation modal) */}
+          <div className="space-y-1.5">
+            <label className="block text-slate-300 font-bold flex items-center gap-1.5 text-xs">
+              <BookOpen className="w-4 h-4 text-cyan-400" /> Key Observations & Problem Notes
+            </label>
+            <MarkdownEditor
+              value={formData.notes}
+              onChange={(val) => setFormData({ ...formData, notes: val })}
+              placeholder="Store key observations, problem statement, or trick takeaways..."
+            />
           </div>
 
           {/* Solutions Storage Section (C++ Only) */}
@@ -283,12 +335,12 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
                 setSolutions(updated);
               }}
               language="cpp"
-              height="220px"
+              height="200px"
             />
           </div>
 
           {/* Modal Footer */}
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-3 shrink-0">
             <button
               type="button"
               onClick={onClose}

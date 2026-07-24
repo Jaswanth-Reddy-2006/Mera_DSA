@@ -1,8 +1,15 @@
-export function parseProblemUrl(url: string): { title: string; platform: string } {
+export function parseProblemUrl(url: string): {
+  title: string;
+  platform: string;
+  topic: string;
+  categories: string[];
+} {
   let title = '';
   let platform = 'LeetCode';
+  let topic = 'Arrays';
+  let categories: string[] = ['Arrays'];
 
-  if (!url || !url.trim()) return { title, platform };
+  if (!url || !url.trim()) return { title, platform, topic, categories };
 
   try {
     let cleanUrl = url.trim();
@@ -34,7 +41,7 @@ export function parseProblemUrl(url: string): { title: string; platform: string 
     } else if (platform === 'GFG') {
       const idx = segments.indexOf('problems');
       if (idx !== -1 && segments[idx + 1]) {
-        slug = segments[idx + 1].replace(/\d+$/, ''); // Clean trailing IDs
+        slug = segments[idx + 1].replace(/\d+$/, '');
       }
     } else if (platform === 'InterviewBit') {
       const idx = segments.indexOf('problems');
@@ -53,7 +60,6 @@ export function parseProblemUrl(url: string): { title: string; platform: string 
         .split(' ')
         .filter(Boolean)
         .map((w) => {
-          // Keep common terms formatted correctly
           if (w.toLowerCase() === '3sum') return '3Sum';
           if (w.toLowerCase() === '2sum') return '2Sum';
           if (w.toLowerCase() === '4sum') return '4Sum';
@@ -65,10 +71,27 @@ export function parseProblemUrl(url: string): { title: string; platform: string 
           return w.charAt(0).toUpperCase() + w.slice(1);
         })
         .join(' ');
+
+      // Infer topic keywords from slug
+      const lowerSlug = slug.toLowerCase();
+      const inferred: string[] = [];
+
+      if (lowerSlug.includes('sum') || lowerSlug.includes('array') || lowerSlug.includes('sub')) inferred.push('Arrays');
+      if (lowerSlug.includes('map') || lowerSlug.includes('hash') || lowerSlug.includes('two-sum')) inferred.push('HashMap');
+      if (lowerSlug.includes('tree') || lowerSlug.includes('binary') || lowerSlug.includes('bst')) inferred.push('Trees');
+      if (lowerSlug.includes('graph') || lowerSlug.includes('dijkstra') || lowerSlug.includes('path')) inferred.push('Graphs');
+      if (lowerSlug.includes('dp') || lowerSlug.includes('knapsack') || lowerSlug.includes('subsequence')) inferred.push('Dynamic Programming');
+      if (lowerSlug.includes('string') || lowerSlug.includes('substring') || lowerSlug.includes('palindrome')) inferred.push('Strings');
+      if (lowerSlug.includes('pointer') || lowerSlug.includes('water') || lowerSlug.includes('container')) inferred.push('Two Pointers');
+
+      if (inferred.length > 0) {
+        categories = inferred;
+        topic = inferred[0];
+      }
     }
   } catch {
-    // Return default if invalid URL
+    // Fallback if parsing fails
   }
 
-  return { title, platform };
+  return { title, platform, topic, categories };
 }

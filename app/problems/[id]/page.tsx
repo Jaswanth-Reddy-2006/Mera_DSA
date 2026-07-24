@@ -17,7 +17,7 @@ import {
   Plus,
   Trash2,
   Edit2,
-  Zap,
+  Tag as TagIcon,
 } from 'lucide-react';
 
 interface SolutionTab {
@@ -142,8 +142,8 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center font-sans">
-        <div className="flex items-center gap-2 text-cyan-400">
+      <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center font-sans p-4">
+        <div className="flex items-center gap-2 text-cyan-400 text-xs sm:text-sm">
           <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
           <span>Loading Problem Entry...</span>
         </div>
@@ -153,9 +153,9 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
 
   if (!problem) {
     return (
-      <div className="min-h-screen bg-[#090d16] text-slate-100 p-8 font-sans text-center">
+      <div className="min-h-screen bg-[#090d16] text-slate-100 p-6 font-sans text-center">
         <h2 className="text-xl font-bold text-rose-400">Problem not found</h2>
-        <button onClick={() => router.push('/problems')} className="mt-4 text-cyan-400 underline">
+        <button onClick={() => router.push('/problems')} className="mt-4 text-cyan-400 underline text-xs">
           Back to Problems Grid
         </button>
       </div>
@@ -164,12 +164,19 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
 
   const activeSol = solutions[activeTabIdx] || solutions[0];
 
+  // Extract all topics / tags array
+  const allTags: string[] = problem.tags && problem.tags.length > 0
+    ? problem.tags.map((t: any) => t.name)
+    : problem.topic
+    ? problem.topic.split(',').map((t: string) => t.trim())
+    : ['Arrays'];
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-[#090d16] text-slate-100 font-sans">
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <Header title={problem.title} subtitle="C++ Solution Storage" />
+        <Header title={problem.title} subtitle="C++ Solution Vault" />
 
         <main className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto w-full">
           {/* Action Bar */}
@@ -205,10 +212,10 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* Metadata Card Header */}
-          <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3 sm:space-y-4">
+          {/* 1. Problem Header Metadata & ALL Topics Badges */}
+          <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-xl sm:text-2xl font-extrabold text-slate-100">{problem.title}</h1>
                   <span
@@ -227,62 +234,55 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                   </span>
                 </div>
 
+                {/* Display ALL Topic Tags Entered */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
+                    <TagIcon className="w-3.5 h-3.5 text-cyan-400" /> Topics:
+                  </span>
+                  {allTags.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2.5 py-0.5 bg-cyan-950/60 border border-cyan-800/40 rounded-full text-cyan-300 text-xs font-semibold"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {problem.pattern && (
+                    <span className="px-2.5 py-0.5 bg-purple-950/60 border border-purple-800/40 rounded-full text-purple-300 text-xs font-semibold">
+                      Pattern: {problem.pattern}
+                    </span>
+                  )}
+                </div>
+
                 {problem.problemUrl && (
-                  <a
-                    href={problem.problemUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-cyan-400 hover:underline inline-flex items-center gap-1 font-semibold"
-                  >
-                    Open Platform Problem Link <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  <div className="pt-1">
+                    <a
+                      href={problem.problemUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-cyan-400 hover:underline inline-flex items-center gap-1 font-semibold"
+                    >
+                      Open Original Platform Problem Link <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 )}
-              </div>
-            </div>
-
-            {/* Editable Metadata Fields Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-              <div className="p-2.5 sm:p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl space-y-1">
-                <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Topic</span>
-                <input
-                  type="text"
-                  value={problem.topic || ''}
-                  onChange={(e) => setProblem({ ...problem, topic: e.target.value })}
-                  className="bg-transparent font-medium text-slate-200 focus:outline-none w-full border-b border-transparent focus:border-cyan-500"
-                />
-              </div>
-
-              <div className="p-2.5 sm:p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl space-y-1">
-                <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Pattern</span>
-                <input
-                  type="text"
-                  placeholder="e.g. Frequency Count"
-                  value={problem.pattern || ''}
-                  onChange={(e) => setProblem({ ...problem, pattern: e.target.value })}
-                  className="bg-transparent font-medium text-slate-200 focus:outline-none w-full border-b border-transparent focus:border-cyan-500"
-                />
-              </div>
-
-              <div className="p-2.5 sm:p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl space-y-1">
-                <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Rating</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={problem.rating || 5}
-                  onChange={(e) => setProblem({ ...problem, rating: Number(e.target.value) })}
-                  className="bg-transparent font-mono font-bold text-cyan-300 focus:outline-none w-full"
-                />
-              </div>
-
-              <div className="p-2.5 sm:p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl space-y-1">
-                <span className="text-slate-500 font-semibold block uppercase tracking-wider text-[10px]">Revision Count</span>
-                <span className="font-mono text-purple-400 font-bold text-xs sm:text-sm block">{problem.revisionCount} times</span>
               </div>
             </div>
           </div>
 
-          {/* Dynamic Solution Storage Section (C++ Only) */}
+          {/* 2. Key Observations & Problem Notes (PLACED ABOVE THE CODE) */}
+          <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
+            <h3 className="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-cyan-400" /> Problem Statement, Examples & Observations (Above Code)
+            </h3>
+            <MarkdownEditor
+              value={problem.notes || ''}
+              onChange={(val) => setProblem({ ...problem, notes: val })}
+              placeholder="Store problem description, examples, and key observations here..."
+            />
+          </div>
+
+          {/* 3. Dynamic Solution Storage Section (C++ Only) */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
               {/* Dynamic Solution Tabs */}
@@ -375,35 +375,8 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                 setSolutions(updated);
               }}
               language="cpp"
-              height="360px"
+              height="380px"
             />
-          </div>
-
-          {/* Notes & Dry Run Walkthrough */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            {/* Markdown Notes */}
-            <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-cyan-400" /> Key Observations & Notes
-              </h3>
-              <MarkdownEditor
-                value={problem.notes || ''}
-                onChange={(val) => setProblem({ ...problem, notes: val })}
-                placeholder="Store key observations..."
-              />
-            </div>
-
-            {/* Dry Run Walkthrough */}
-            <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-400" /> Dry Run Walkthrough
-              </h3>
-              <MarkdownEditor
-                value={problem.dryRun || ''}
-                onChange={(val) => setProblem({ ...problem, dryRun: val })}
-                placeholder="Step 1: nums = [2,7,11,15], target = 9..."
-              />
-            </div>
           </div>
         </main>
       </div>

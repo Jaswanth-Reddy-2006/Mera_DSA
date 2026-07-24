@@ -21,7 +21,6 @@ import {
   Filter,
   AlertCircle,
   Clock,
-  CheckCircle2,
 } from 'lucide-react';
 
 interface ProblemsTableProps {
@@ -42,7 +41,6 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
   // Quick update problem cell and autosave
   const handleCellSave = async (problemId: string, field: string, value: any) => {
     try {
-      // Optimistic update
       setData((prev) =>
         prev.map((item) => (item.id === problemId ? { ...item, [field]: value } : item))
       );
@@ -174,10 +172,24 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
       },
       {
         accessorKey: 'topic',
-        header: 'Topic',
-        cell: ({ row }) => (
-          <span className="text-slate-300 font-medium text-xs">{row.original.topic}</span>
-        ),
+        header: 'Topics / Categories',
+        cell: ({ row }) => {
+          const tagsList: string[] = row.original.tags && row.original.tags.length > 0
+            ? row.original.tags.map((t: any) => t.name)
+            : row.original.topic
+            ? row.original.topic.split(',').map((t: string) => t.trim())
+            : ['Arrays'];
+
+          return (
+            <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
+              {tagsList.map((t, idx) => (
+                <span key={idx} className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-cyan-300 border border-slate-700/80 font-medium">
+                  {t}
+                </span>
+              ))}
+            </div>
+          );
+        },
       },
       {
         accessorKey: 'revisionCount',
