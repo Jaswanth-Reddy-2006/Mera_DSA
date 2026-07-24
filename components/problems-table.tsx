@@ -21,6 +21,7 @@ import {
   Filter,
   AlertCircle,
   Clock,
+  Sparkles,
 } from 'lucide-react';
 
 interface ProblemsTableProps {
@@ -35,8 +36,31 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
   const [globalFilter, setGlobalFilter] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('All');
   const [platformFilter, setPlatformFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [patternFilter, setPatternFilter] = useState('All');
+  const [topicFilter, setTopicFilter] = useState('All');
   const [editingCell, setEditingCell] = useState<{ rowId: string; colId: string } | null>(null);
+
+  // Extract all unique pattern names created by user
+  const uniquePatterns = useMemo(() => {
+    const set = new Set<string>();
+    data.forEach((p) => {
+      if (p.pattern && p.pattern.trim()) set.add(p.pattern.trim());
+    });
+    return Array.from(set).sort();
+  }, [data]);
+
+  // Extract all unique topic names
+  const uniqueTopics = useMemo(() => {
+    const set = new Set<string>();
+    data.forEach((p) => {
+      if (p.tags && p.tags.length > 0) {
+        p.tags.forEach((t: any) => set.add(t.name));
+      } else if (p.topic) {
+        p.topic.split(',').forEach((t: string) => set.add(t.trim()));
+      }
+    });
+    return Array.from(set).sort();
+  }, [data]);
 
   // Quick update problem cell and autosave
   const handleCellSave = async (problemId: string, field: string, value: any) => {
@@ -172,7 +196,7 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
       },
       {
         accessorKey: 'topic',
-        header: 'Topics / Categories',
+        header: 'Topics & Pattern',
         cell: ({ row }) => {
           const tagsList: string[] = row.original.tags && row.original.tags.length > 0
             ? row.original.tags.map((t: any) => t.name)
@@ -181,12 +205,17 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
             : ['Arrays'];
 
           return (
-            <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
+            <div className="flex flex-wrap items-center gap-1 max-w-[260px]">
               {tagsList.map((t, idx) => (
                 <span key={idx} className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-cyan-300 border border-slate-700/80 font-medium">
                   {t}
                 </span>
               ))}
+              {row.original.pattern && (
+                <span className="text-[11px] px-2 py-0.5 rounded-md bg-purple-950/60 text-purple-300 border border-purple-800/60 font-semibold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-purple-400" /> {row.original.pattern}
+                </span>
+              )}
             </div>
           );
         },
@@ -238,14 +267,30 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
     [editingCell]
   );
 
+  // Fast Memoized Multi-Filter Engine
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       if (difficultyFilter !== 'All' && item.difficulty !== difficultyFilter) return false;
       if (platformFilter !== 'All' && item.platform !== platformFilter) return false;
-      if (statusFilter !== 'All' && item.status !== statusFilter) return false;
+
+      // Pattern Filter
+      if (patternFilter !== 'All') {
+        if (!item.pattern || item.pattern.trim().toLowerCase() !== patternFilter.toLowerCase()) {
+          return false;
+        }
+      }
+
+      // Topic Filter
+      if (topicFilter !== 'All') {
+        const itemTags = item.tags ? item.tags.map((t: any) => t.name) : (item.topic ? item.topic.split(',').map((t) => t.trim()) : []);
+        if (!itemTags.includes(topicFilter)) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [data, difficultyFilter, platformFilter, statusFilter]);
+  }, [data, difficultyFilter, platformFilter, patternFilter, topicFilter]);
 
   const table = useReactTable({
     data: filteredData,
@@ -260,26 +305,54 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
 
   return (
     <div className="space-y-4 font-sans">
-      {/* Controls Bar */}
-      <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
-        <div className="flex items-center gap-3 flex-1 min-w-[240px]">
+      {/* Controls Bar with Pattern Filter */}
+      <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl">
+        <div className="flex items-center gap-3 flex-1 min-w-[200px]">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={globalFilter ?? ''}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              placeholder="Search problems or topics..."
+              placeholder="Search problems, patterns, topics..."
               className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
             />
           </div>
         </div>
 
-        {/* Filter Dropdowns */}
+        {/* Filter Dropdowns including Custom Pattern Filter */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <div className="flex items-center gap-1.5 text-slate-400 font-medium">
             <Filter className="w-3.5 h-3.5 text-cyan-400" /> Filters:
           </div>
+
+          {/* Custom Pattern Filter Dropdown */}
+          <select
+            value={patternFilter}
+            onChange={(e) => setPatternFilter(e.target.value)}
+            className="bg-slate-950 border border-purple-800/60 text-purple-300 font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none"
+          >
+            <option value="All">All Patterns</option>
+            {uniquePatterns.map((pat) => (
+              <option key={pat} value={pat}>
+                Pattern: {pat}
+              </option>
+            ))}
+          </select>
+
+          {/* Topic Filter Dropdown */}
+          <select
+            value={topicFilter}
+            onChange={(e) => setTopicFilter(e.target.value)}
+            className="bg-slate-950 border border-cyan-800/60 text-cyan-300 font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none"
+          >
+            <option value="All">All Topics</option>
+            {uniqueTopics.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
 
           <select
             value={difficultyFilter}
@@ -342,7 +415,7 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
               ) : (
                 <tr>
                   <td colSpan={columns.length} className="p-12 text-center text-slate-500">
-                    No problems in vault yet. Click &quot;Add Problem&quot; to store your first question!
+                    No problems matching current filters.
                   </td>
                 </tr>
               )}
