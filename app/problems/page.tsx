@@ -6,12 +6,20 @@ import Header from '@/components/header';
 import ProblemsTable from '@/components/problems-table';
 import AddProblemModal from '@/components/add-problem-modal';
 import { ProblemData } from '@/types';
-import { PlusCircle, RefreshCw } from 'lucide-react';
+import { PlusCircle, RefreshCw, ShieldAlert } from 'lucide-react';
 
 export default function ProblemsPage() {
   const [problems, setProblems] = useState<ProblemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'guest' | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => setUserRole(data.role))
+      .catch(() => setUserRole('guest'));
+  }, []);
 
   const fetchProblems = async () => {
     setLoading(true);
@@ -32,6 +40,8 @@ export default function ProblemsPage() {
     fetchProblems();
   }, []);
 
+  const isGuest = userRole === 'guest';
+
   return (
     <div className="flex min-h-screen bg-[#090d16] text-slate-100 font-sans">
       <Sidebar />
@@ -47,12 +57,18 @@ export default function ProblemsPage() {
               <p className="text-xs text-slate-400">Click title or platform link to open problem details & code solutions.</p>
             </div>
 
-            <button
-              onClick={() => setAddModalOpen(true)}
-              className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <PlusCircle className="w-4 h-4" /> Add Problem
-            </button>
+            {isGuest ? (
+              <span className="px-3 py-1.5 bg-purple-950/60 border border-purple-800/60 rounded-xl text-purple-300 text-xs font-bold flex items-center gap-1.5">
+                <ShieldAlert className="w-4 h-4 text-purple-400" /> Read-Only Guest Access
+              </span>
+            ) : (
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" /> Add Problem
+              </button>
+            )}
           </div>
 
           {/* Table Container */}
@@ -66,7 +82,9 @@ export default function ProblemsPage() {
         </main>
       </div>
 
-      <AddProblemModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onCreated={fetchProblems} />
+      {!isGuest && (
+        <AddProblemModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onCreated={fetchProblems} />
+      )}
     </div>
   );
 }

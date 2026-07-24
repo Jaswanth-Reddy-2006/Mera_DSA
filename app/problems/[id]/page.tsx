@@ -22,6 +22,7 @@ import {
   Clock,
   HardDrive,
   FileText,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface SolutionTab {
@@ -41,6 +42,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
   const [problem, setProblem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'guest' | null>(null);
 
   // Dynamic C++ Solution Tabs with Per-Solution Complexities
   const [solutions, setSolutions] = useState<SolutionTab[]>([
@@ -51,6 +53,14 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
 
   const [activeTabIdx, setActiveTabIdx] = useState(0);
   const [editingTitleIdx, setEditingTitleIdx] = useState<number | null>(null);
+
+  // Check current session role
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => setUserRole(data.role))
+      .catch(() => setUserRole('guest'));
+  }, []);
 
   const fetchProblemDetails = async () => {
     setLoading(true);
@@ -85,6 +95,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
 
   // Add Optimal 2, Optimal 3, etc.
   const handleAddOptimalTab = () => {
+    if (userRole === 'guest') return;
     const optimalCount = solutions.filter((s) => s.title.startsWith('Optimal')).length;
     const newTitle = `Optimal ${optimalCount + 1}`;
     setSolutions([
@@ -97,7 +108,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
   // Delete solution tab
   const handleDeleteSolutionTab = (idx: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (solutions.length <= 1) return;
+    if (userRole === 'guest' || solutions.length <= 1) return;
     const filtered = solutions.filter((_, i) => i !== idx);
     setSolutions(filtered);
     if (activeTabIdx >= filtered.length) {
@@ -106,7 +117,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
   };
 
   const handleSave = async () => {
-    if (!problem) return;
+    if (!problem || userRole === 'guest') return;
     setSaving(true);
     try {
       const res = await fetch(`/api/problems/${problemId}`, {
@@ -128,6 +139,9 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
       if (res.ok) {
         const updated = await res.json();
         setProblem((prev: any) => ({ ...prev, ...updated }));
+      } else {
+        const errData = await res.json();
+        alert(errData.error || 'Failed to save problem');
       }
     } catch (err) {
       console.error('Error saving problem:', err);
@@ -137,6 +151,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
   };
 
   const handleMarkRevised = async () => {
+    if (userRole === 'guest') return;
     try {
       const res = await fetch('/api/revisions', {
         method: 'POST',
@@ -147,6 +162,9 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
       if (res.ok) {
         confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
         fetchProblemDetails();
+      } else {
+        const errData = await res.json();
+        alert(errData.error || 'Read-only mode');
       }
     } catch (err) {
       console.error('Error recording revision:', err);
@@ -184,6 +202,8 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
     ? problem.topic.split(',').map((t: string) => t.trim())
     : ['Arrays'];
 
+  const isGuest = userRole === 'guest';
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-[#090d16] text-slate-100 font-sans">
       <Sidebar />
@@ -201,28 +221,34 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
               <ArrowLeft className="w-4 h-4" /> Back to Grid
             </button>
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              <button
-                onClick={handleMarkRevised}
-                className="px-3 py-2 bg-purple-950/60 hover:bg-purple-900/60 border border-purple-800/60 rounded-xl text-purple-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
-              >
-                <Repeat className="w-4 h-4 text-purple-400" /> Revise ({problem.revisionCount}x)
-              </button>
+            {isGuest ? (
+              <span className="px-3 py-1.5 bg-purple-950/60 border border-purple-800/60 rounded-xl text-purple-300 text-xs font-bold flex items-center gap-1.5">
+                <ShieldAlert className="w-4 h-4 text-purple-400" /> Read-Only Guest Mode
+              </span>
+            ) : (
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  onClick={handleMarkRevised}
+                  className="px-3 py-2 bg-purple-950/60 hover:bg-purple-900/60 border border-purple-800/60 rounded-xl text-purple-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <Repeat className="w-4 h-4 text-purple-400" /> Revise ({problem.revisionCount}x)
+                </button>
 
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="px-4 sm:px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                {saving ? (
-                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" /> Save
-                  </>
-                )}
-              </button>
-            </div>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="px-4 sm:px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  {saving ? (
+                    <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" /> Save
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* 1. Header Metadata & All Topic Badges */}
@@ -283,26 +309,28 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* 2. Problem Statement & Examples (Auto-Written From URL) */}
+          {/* 2. Problem Statement & Examples */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
             <h3 className="text-xs sm:text-sm font-bold text-cyan-300 flex items-center gap-2">
               <FileText className="w-4 h-4 text-cyan-400" /> Problem Statement & Example Test Cases (Auto-Fetched From URL)
             </h3>
             <MarkdownEditor
               value={problem.problemDescription || ''}
-              onChange={(val) => setProblem({ ...problem, problemDescription: val })}
+              onChange={(val) => !isGuest && setProblem({ ...problem, problemDescription: val })}
+              readOnly={isGuest}
               placeholder="Auto-fetched problem statement and example test cases..."
             />
           </div>
 
-          {/* 3. Key Observations & Personal Notes (Written By User) */}
+          {/* 3. Key Observations & Personal Notes */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
             <h3 className="text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-amber-400" /> Key Observations & Personal Notes (Written By You)
             </h3>
             <MarkdownEditor
               value={problem.notes || ''}
-              onChange={(val) => setProblem({ ...problem, notes: val })}
+              onChange={(val) => !isGuest && setProblem({ ...problem, notes: val })}
+              readOnly={isGuest}
               placeholder="Write your key observations, tricks, edge cases, and personal notes here..."
             />
           </div>
@@ -326,7 +354,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                           : 'bg-slate-950 text-slate-400 hover:text-slate-200 border-slate-800'
                       }`}
                     >
-                      {isEditingTitle ? (
+                      {isEditingTitle && !isGuest ? (
                         <input
                           type="text"
                           value={sol.title}
@@ -344,10 +372,10 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <span onDoubleClick={() => setEditingTitleIdx(idx)}>{sol.title}</span>
+                        <span onDoubleClick={() => !isGuest && setEditingTitleIdx(idx)}>{sol.title}</span>
                       )}
 
-                      {isActive && (
+                      {isActive && !isGuest && (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -361,7 +389,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                         </button>
                       )}
 
-                      {solutions.length > 1 && (
+                      {solutions.length > 1 && !isGuest && (
                         <button
                           type="button"
                           onClick={(e) => handleDeleteSolutionTab(idx, e)}
@@ -376,14 +404,16 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                 })}
 
                 {/* Plus Icon Button */}
-                <button
-                  type="button"
-                  onClick={handleAddOptimalTab}
-                  className="p-1.5 bg-slate-950 hover:bg-slate-800 text-cyan-400 rounded-xl border border-slate-800 transition-all cursor-pointer"
-                  title="Add solution tab (e.g. Optimal 2)"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+                {!isGuest && (
+                  <button
+                    type="button"
+                    onClick={handleAddOptimalTab}
+                    className="p-1.5 bg-slate-950 hover:bg-slate-800 text-cyan-400 rounded-xl border border-slate-800 transition-all cursor-pointer"
+                    title="Add solution tab (e.g. Optimal 2)"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <span className="text-xs font-mono text-cyan-400 font-semibold px-2 py-0.5 rounded bg-slate-950 border border-slate-800">
@@ -395,56 +425,82 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             <MonacoCodeEditor
               value={activeSol.code}
               onChange={(val) => {
+                if (isGuest) return;
                 const updated = [...solutions];
                 updated[activeTabIdx].code = val;
                 setSolutions(updated);
               }}
+              readOnly={isGuest}
               language="cpp"
               height="360px"
             />
 
-            {/* Predefined Time & Space Complexity Dropdowns for Selected Solution */}
+            {/* Hybrid Custom Input + Datalist for Time & Space Complexity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl">
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-xs">
                   <Clock className="w-4 h-4 text-amber-400" /> Time Complexity ({activeSol.title})
                 </label>
-                <select
-                  value={activeSol.timeComplexity || 'O(N)'}
-                  onChange={(e) => {
-                    const updated = [...solutions];
-                    updated[activeTabIdx].timeComplexity = e.target.value;
-                    setSolutions(updated);
-                  }}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs focus:outline-none font-bold"
-                >
-                  {TIME_COMPLEXITY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                {isGuest ? (
+                  <div className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs font-bold">
+                    {activeSol.timeComplexity || 'O(N)'}
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      list="time-complexity-list-details"
+                      placeholder="Select or type custom e.g. O(V + E)"
+                      value={activeSol.timeComplexity || 'O(N)'}
+                      onChange={(e) => {
+                        const updated = [...solutions];
+                        updated[activeTabIdx].timeComplexity = e.target.value;
+                        setSolutions(updated);
+                      }}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs focus:outline-none focus:border-amber-500 font-bold"
+                    />
+                    <datalist id="time-complexity-list-details">
+                      {TIME_COMPLEXITY_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </datalist>
+                  </>
+                )}
               </div>
 
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-xs">
                   <HardDrive className="w-4 h-4 text-purple-400" /> Space Complexity ({activeSol.title})
                 </label>
-                <select
-                  value={activeSol.spaceComplexity || 'O(1)'}
-                  onChange={(e) => {
-                    const updated = [...solutions];
-                    updated[activeTabIdx].spaceComplexity = e.target.value;
-                    setSolutions(updated);
-                  }}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs focus:outline-none font-bold"
-                >
-                  {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                {isGuest ? (
+                  <div className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs font-bold">
+                    {activeSol.spaceComplexity || 'O(1)'}
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      list="space-complexity-list-details"
+                      placeholder="Select or type custom e.g. O(K)"
+                      value={activeSol.spaceComplexity || 'O(1)'}
+                      onChange={(e) => {
+                        const updated = [...solutions];
+                        updated[activeTabIdx].spaceComplexity = e.target.value;
+                        setSolutions(updated);
+                      }}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs focus:outline-none focus:border-purple-500 font-bold"
+                    />
+                    <datalist id="space-complexity-list-details">
+                      {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </datalist>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSessionUser } from '@/lib/auth';
 
 export async function GET(
   request: Request,
@@ -54,6 +55,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { role } = await getSessionUser();
+    if (role === 'guest') {
+      return NextResponse.json({ error: 'Read-only mode. Guest accounts cannot edit problems.' }, { status: 403 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { solutions = [], tags = [], ...data } = body;
@@ -65,6 +71,7 @@ export async function PUT(
         title: data.title,
         platform: data.platform,
         problemUrl: data.problemUrl,
+        problemDescription: data.problemDescription,
         difficulty: data.difficulty,
         topic: data.topic,
         subtopic: data.subtopic,
@@ -92,6 +99,8 @@ export async function PUT(
           language: s.language || 'cpp',
           code: s.code || '',
           title: s.title || '',
+          timeComplexity: s.timeComplexity || 'O(N)',
+          spaceComplexity: s.spaceComplexity || 'O(1)',
         })),
       });
     }
@@ -125,6 +134,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { role } = await getSessionUser();
+    if (role === 'guest') {
+      return NextResponse.json({ error: 'Read-only mode. Guest accounts cannot delete problems.' }, { status: 403 });
+    }
+
     const { id } = await params;
     await db.problem.delete({ where: { id } });
     return NextResponse.json({ success: true });

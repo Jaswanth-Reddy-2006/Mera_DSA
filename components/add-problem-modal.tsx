@@ -37,8 +37,8 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
     categories: '',
     subtopic: '',
     pattern: '',
-    problemDescription: '', // Auto-written by system from URL!
-    notes: '',              // Personal Key Observations written by user!
+    problemDescription: '',
+    notes: '',
   });
 
   // Solutions with per-solution Time & Space Complexities
@@ -151,9 +151,13 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to create problem');
-      const newProblem = await res.json();
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.error || 'Failed to create problem');
+        return;
+      }
 
+      const newProblem = await res.json();
       onClose();
       if (onCreated) onCreated();
       router.push(`/problems/${newProblem.id}`);
@@ -279,7 +283,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             </div>
           </div>
 
-          {/* 1. Problem Description / Statement (Written by system from URL) */}
+          {/* 1. Problem Description / Statement */}
           <div className="space-y-1.5">
             <label className="block text-cyan-300 font-bold flex items-center gap-1.5 text-xs">
               <FileText className="w-4 h-4 text-cyan-400" /> Problem Statement & Examples (Auto-Written From URL)
@@ -291,7 +295,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             />
           </div>
 
-          {/* 2. Key Observations & Notes (Written manually by user) */}
+          {/* 2. Key Observations & Notes */}
           <div className="space-y-1.5">
             <label className="block text-amber-300 font-bold flex items-center gap-1.5 text-xs">
               <BookOpen className="w-4 h-4 text-amber-400" /> Key Observations & Personal Notes (Written By You)
@@ -303,7 +307,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             />
           </div>
 
-          {/* Solutions Storage Section */}
+          {/* Solutions Storage Section with Hybrid Custom/Predefined Complexities */}
           <div className="space-y-3 border-t border-slate-800 pt-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-slate-200 flex items-center gap-1.5 text-xs">
@@ -359,48 +363,56 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
               height="180px"
             />
 
-            {/* Predefined Time & Space Complexity Dropdowns for Current Solution */}
+            {/* Hybrid Custom Input + Predefined Datalist for Time & Space Complexity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl">
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-[11px]">
                   <Clock className="w-3.5 h-3.5 text-amber-400" /> Time Complexity ({currentSol.title})
                 </label>
-                <select
+                <input
+                  type="text"
+                  list="time-complexity-list"
+                  placeholder="Select or type custom e.g. O(V + E)"
                   value={currentSol.timeComplexity}
                   onChange={(e) => {
                     const updated = [...solutions];
                     updated[activeTabIdx].timeComplexity = e.target.value;
                     setSolutions(updated);
                   }}
-                  className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-amber-300 font-mono text-xs focus:outline-none"
-                >
+                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-amber-300 font-mono text-xs focus:outline-none focus:border-amber-500 font-semibold"
+                />
+                <datalist id="time-complexity-list">
                   {TIME_COMPLEXITY_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
-                </select>
+                </datalist>
               </div>
 
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-[11px]">
                   <HardDrive className="w-3.5 h-3.5 text-purple-400" /> Space Complexity ({currentSol.title})
                 </label>
-                <select
+                <input
+                  type="text"
+                  list="space-complexity-list"
+                  placeholder="Select or type custom e.g. O(K)"
                   value={currentSol.spaceComplexity}
                   onChange={(e) => {
                     const updated = [...solutions];
                     updated[activeTabIdx].spaceComplexity = e.target.value;
                     setSolutions(updated);
                   }}
-                  className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-purple-300 font-mono text-xs focus:outline-none"
-                >
+                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-purple-300 font-mono text-xs focus:outline-none focus:border-purple-500 font-semibold"
+                />
+                <datalist id="space-complexity-list">
                   {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
-                </select>
+                </datalist>
               </div>
             </div>
           </div>

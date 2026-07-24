@@ -10,6 +10,7 @@ interface MarkdownEditorProps {
   onChange: (val: string) => void;
   placeholder?: string;
   minHeight?: string;
+  readOnly?: boolean;
 }
 
 export default function MarkdownEditor({
@@ -17,28 +18,31 @@ export default function MarkdownEditor({
   onChange,
   placeholder = 'Write Markdown notes, observations, or dry run steps here...',
   minHeight = '180px',
+  readOnly = false,
 }: MarkdownEditorProps) {
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>(readOnly ? 'preview' : 'edit');
 
   return (
     <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950 shadow-xl font-sans">
       {/* Tab Switcher Bar */}
       <div className="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => setActiveTab('edit')}
-            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
-              activeTab === 'edit'
-                ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Edit3 className="w-3.5 h-3.5" /> Edit
-          </button>
+          {!readOnly && (
+            <button
+              onClick={() => setActiveTab('edit')}
+              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
+                activeTab === 'edit'
+                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Edit3 className="w-3.5 h-3.5" /> Edit
+            </button>
+          )}
           <button
             onClick={() => setActiveTab('preview')}
             className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
-              activeTab === 'preview'
+              activeTab === 'preview' || readOnly
                 ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
@@ -51,7 +55,7 @@ export default function MarkdownEditor({
       </div>
 
       {/* Editor Body */}
-      {activeTab === 'edit' ? (
+      {activeTab === 'edit' && !readOnly ? (
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}

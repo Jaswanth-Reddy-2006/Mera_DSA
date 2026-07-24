@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { FLAT_FORMULA_ITEMS } from '@/lib/default-formula-data';
+import { getSessionUser } from '@/lib/auth';
 
 async function seedFormulasIfEmpty() {
   const count = await db.formulaCategory.count();
@@ -84,6 +85,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const { role } = await getSessionUser();
+    if (role === 'guest') {
+      return NextResponse.json({ error: 'Read-only mode. Guest accounts cannot create problems.' }, { status: 403 });
+    }
+
     const body = await request.json();
     const {
       title,
@@ -187,6 +193,11 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const { role } = await getSessionUser();
+    if (role === 'guest') {
+      return NextResponse.json({ error: 'Read-only mode. Guest accounts cannot edit problems.' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { id, ...data } = body;
     if (!id) {
