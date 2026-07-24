@@ -7,7 +7,7 @@ import Sidebar from '@/components/sidebar';
 import Header from '@/components/header';
 import MonacoCodeEditor from '@/components/monaco-code-editor';
 import MarkdownEditor from '@/components/markdown-editor';
-import { TIME_COMPLEXITY_OPTIONS, SPACE_COMPLEXITY_OPTIONS } from '@/lib/complexity-constants';
+import ComplexityPicker from '@/components/complexity-picker';
 import {
   ArrowLeft,
   ExternalLink,
@@ -19,8 +19,6 @@ import {
   Trash2,
   Edit2,
   Tag as TagIcon,
-  Clock,
-  HardDrive,
   FileText,
   ShieldAlert,
 } from 'lucide-react';
@@ -435,101 +433,33 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
               height="360px"
             />
 
-            {/* Exhaustive Time & Space Complexity Controls */}
+            {/* Complexity Pickers for Current Solution */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl">
-              <div>
-                <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-xs">
-                  <Clock className="w-4 h-4 text-amber-400" /> Time Complexity ({activeSol.title})
-                </label>
-                {isGuest ? (
-                  <div className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs font-bold">
-                    {activeSol.timeComplexity || 'O(N)'}
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    <select
-                      value={TIME_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.timeComplexity) ? activeSol.timeComplexity : 'CUSTOM'}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        const updated = [...solutions];
-                        if (val !== 'CUSTOM') {
-                          updated[activeTabIdx].timeComplexity = val;
-                        }
-                        setSolutions(updated);
-                      }}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs focus:outline-none font-bold"
-                    >
-                      {TIME_COMPLEXITY_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                      <option value="CUSTOM">Custom / Type My Own Complexity...</option>
-                    </select>
+              <ComplexityPicker
+                label={`Time Complexity (${activeSol.title})`}
+                value={activeSol.timeComplexity}
+                onChange={(val) => {
+                  if (isGuest) return;
+                  const updated = [...solutions];
+                  updated[activeTabIdx].timeComplexity = val;
+                  setSolutions(updated);
+                }}
+                type="time"
+                readOnly={isGuest}
+              />
 
-                    {(!TIME_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.timeComplexity) || activeSol.timeComplexity === '') && (
-                      <input
-                        type="text"
-                        placeholder="Type custom complexity e.g. O(n*m)"
-                        value={activeSol.timeComplexity || ''}
-                        onChange={(e) => {
-                          const updated = [...solutions];
-                          updated[activeTabIdx].timeComplexity = e.target.value;
-                          setSolutions(updated);
-                        }}
-                        className="w-full px-3 py-1.5 bg-slate-950 border border-amber-800/60 rounded-xl text-amber-300 font-mono text-xs focus:outline-none font-bold placeholder-slate-600"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-xs">
-                  <HardDrive className="w-4 h-4 text-purple-400" /> Space Complexity ({activeSol.title})
-                </label>
-                {isGuest ? (
-                  <div className="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs font-bold">
-                    {activeSol.spaceComplexity || 'O(1)'}
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    <select
-                      value={SPACE_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.spaceComplexity) ? activeSol.spaceComplexity : 'CUSTOM'}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        const updated = [...solutions];
-                        if (val !== 'CUSTOM') {
-                          updated[activeTabIdx].spaceComplexity = val;
-                        }
-                        setSolutions(updated);
-                      }}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs focus:outline-none font-bold"
-                    >
-                      {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                      <option value="CUSTOM">Custom / Type My Own Space...</option>
-                    </select>
-
-                    {(!SPACE_COMPLEXITY_OPTIONS.some((o) => o.value === activeSol.spaceComplexity) || activeSol.spaceComplexity === '') && (
-                      <input
-                        type="text"
-                        placeholder="Type custom space e.g. O(n*m)"
-                        value={activeSol.spaceComplexity || ''}
-                        onChange={(e) => {
-                          const updated = [...solutions];
-                          updated[activeTabIdx].spaceComplexity = e.target.value;
-                          setSolutions(updated);
-                        }}
-                        className="w-full px-3 py-1.5 bg-slate-950 border border-purple-800/60 rounded-xl text-purple-300 font-mono text-xs focus:outline-none font-bold placeholder-slate-600"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
+              <ComplexityPicker
+                label={`Space Complexity (${activeSol.title})`}
+                value={activeSol.spaceComplexity}
+                onChange={(val) => {
+                  if (isGuest) return;
+                  const updated = [...solutions];
+                  updated[activeTabIdx].spaceComplexity = val;
+                  setSolutions(updated);
+                }}
+                type="space"
+                readOnly={isGuest}
+              />
             </div>
           </div>
         </main>
