@@ -6,10 +6,8 @@ import {
   LayoutDashboard,
   TableProperties,
   BookOpen,
-  FolderKanban,
   Repeat,
   BarChart3,
-  Settings,
   LogOut,
   X,
   Menu,
@@ -22,14 +20,13 @@ export default function Sidebar() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Strictly Dashboard, Problems, Formula Sheet, Revision, Analytics
   const navItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Problems', href: '/problems', icon: TableProperties },
     { name: 'Formula Sheet', href: '/formula', icon: BookOpen },
-    { name: 'Categories', href: '/categories', icon: FolderKanban },
     { name: 'Revision', href: '/revision', icon: Repeat },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   const handleLogout = async () => {

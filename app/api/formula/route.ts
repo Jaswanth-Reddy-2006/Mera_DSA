@@ -7,7 +7,7 @@ export async function GET() {
     const count = await db.formulaCategory.count();
     if (count === 0) {
       for (const item of FLAT_FORMULA_ITEMS) {
-        const cat = await db.formulaCategory.create({
+        await db.formulaCategory.create({
           data: {
             name: item.title,
             items: {
@@ -16,7 +16,14 @@ export async function GET() {
                   title: item.title,
                   syntax: item.syntax,
                   description: item.description,
-                  codeSnippet: item.declaration,
+                  codeSnippet: JSON.stringify({
+                    declaration: item.declaration,
+                    insertion: item.insertion,
+                    lookup: item.lookup,
+                    deletion: item.deletion,
+                    iteration: item.iteration,
+                    sizeCheck: item.sizeCheck,
+                  }),
                 },
               ],
             },
@@ -27,9 +34,34 @@ export async function GET() {
 
     const categories = await db.formulaCategory.findMany({
       include: { items: true },
+      orderBy: { order: 'asc' },
     });
 
-    return NextResponse.json(categories);
+    const customItems = categories.flatMap((c) =>
+      c.items.map((i) => {
+        let details: any = {};
+        try {
+          details = JSON.parse(i.codeSnippet || '{}');
+        } catch {
+          details = { declaration: i.codeSnippet };
+        }
+
+        return {
+          id: i.id,
+          title: i.title,
+          syntax: i.syntax,
+          description: i.description || '',
+          declaration: details.declaration || '',
+          insertion: details.insertion || '',
+          lookup: details.lookup || '',
+          deletion: details.deletion || '',
+          iteration: details.iteration || '',
+          sizeCheck: details.sizeCheck || '',
+        };
+      })
+    );
+
+    return NextResponse.json(customItems);
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error fetching formula sheet' }, { status: 500 });
   }
@@ -38,33 +70,56 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { categoryId, categoryName, title, syntax, description, codeSnippet, commonMistakes } = body;
+    const { title, syntax, description, declaration, insertion, lookup, deletion, iteration, sizeCheck } = body;
 
-    let catId = categoryId;
+    if (!title || !syntax) {
+      return NextResponse.json({ error: 'Title and primary syntax are required' }, { status: 400 });
+    }
 
-    if (!catId && categoryName) {
-      const newCat = await db.formulaCategory.create({
-        data: { name: categoryName },
+    let defaultCategory = await db.formulaCategory.findFirst({
+      where: { name: 'Custom Formulas' },
+    });
+
+    if (!defaultCategory) {
+      defaultCategory = await db.formulaCategory.create({
+        data: { name: 'Custom Formulas', order: 99 },
       });
-      catId = newCat.id;
     }
 
-    if (!catId || !title || !syntax) {
-      return NextResponse.json({ error: 'Category, title, and syntax are required' }, { status: 400 });
-    }
+    const codeSnippetJson = JSON.stringify({
+      declaration,
+      insertion,
+      lookup,
+      deletion,
+      iteration,
+      sizeCheck,
+    });
 
     const newItem = await db.formulaItem.create({
       data: {
-        categoryId: catId,
+        categoryId: defaultCategory.id,
         title,
         syntax,
         description,
-        codeSnippet,
-        commonMistakes,
+        codeSnippet: codeSnippetJson,
       },
     });
 
-    return NextResponse.json(newItem, { status: 201 });
+    return NextResponse.json(
+      {
+        id: newItem.id,
+        title: newItem.title,
+        syntax: newItem.syntax,
+        description: newItem.description || '',
+        declaration,
+        insertion,
+        lookup,
+        deletion,
+        iteration,
+        sizeCheck,
+      },
+      { status: 201 }
+    );
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error adding formula item' }, { status: 500 });
   }
