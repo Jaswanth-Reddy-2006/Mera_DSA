@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Plus, Sparkles, Code2, Link as LinkIcon, Wand2, BookOpen } from 'lucide-react';
+import { X, Plus, Sparkles, Code2, Link as LinkIcon, Wand2, BookOpen, Clock, HardDrive } from 'lucide-react';
 import MonacoCodeEditor from './monaco-code-editor';
 import MarkdownEditor from './markdown-editor';
 import { parseProblemUrl } from '@/lib/url-parser';
+import { TIME_COMPLEXITY_OPTIONS, SPACE_COMPLEXITY_OPTIONS } from '@/lib/complexity-constants';
 
 interface AddProblemModalProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ interface SolutionItem {
   type: string;
   title: string;
   code: string;
+  timeComplexity: string;
+  spaceComplexity: string;
 }
 
 export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProblemModalProps) {
@@ -37,11 +40,11 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
     notes: '',
   });
 
-  // Solutions: Initially Brute Force, Better, Optimal 1 + Plus button to add Optimal 2, Optimal 3, etc.
+  // Solutions with per-solution Time & Space Complexities
   const [solutions, setSolutions] = useState<SolutionItem[]>([
-    { type: 'BRUTE', title: 'Brute Force', code: '' },
-    { type: 'BETTER', title: 'Better', code: '' },
-    { type: 'OPTIMAL', title: 'Optimal 1', code: '' },
+    { type: 'BRUTE', title: 'Brute Force', code: '', timeComplexity: 'O(N^2)', spaceComplexity: 'O(1)' },
+    { type: 'BETTER', title: 'Better', code: '', timeComplexity: 'O(N log N)', spaceComplexity: 'O(N)' },
+    { type: 'OPTIMAL', title: 'Optimal 1', code: '', timeComplexity: 'O(N)', spaceComplexity: 'O(1)' },
   ]);
 
   const [activeTabIdx, setActiveTabIdx] = useState(0);
@@ -53,7 +56,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
     setFormData((prev) => ({ ...prev, problemUrl: url }));
     if (!url.trim()) return;
 
-    // Quick local parse first for immediate response
+    // Quick local parse first
     const localParsed = parseProblemUrl(url);
     setFormData((prev) => ({
       ...prev,
@@ -96,7 +99,10 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
   const handleAddOptimalTab = () => {
     const optimalCount = solutions.filter((s) => s.title.startsWith('Optimal')).length;
     const newTitle = `Optimal ${optimalCount + 1}`;
-    setSolutions([...solutions, { type: 'OPTIMAL', title: newTitle, code: '' }]);
+    setSolutions([
+      ...solutions,
+      { type: 'OPTIMAL', title: newTitle, code: '', timeComplexity: 'O(N)', spaceComplexity: 'O(1)' },
+    ]);
     setActiveTabIdx(solutions.length);
   };
 
@@ -129,6 +135,8 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
           title: s.title,
           language: 'cpp',
           code: s.code,
+          timeComplexity: s.timeComplexity,
+          spaceComplexity: s.spaceComplexity,
         }));
 
       const res = await fetch('/api/problems', {
@@ -177,7 +185,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
           <div className="p-3 sm:p-4 bg-cyan-950/30 border border-cyan-900/40 rounded-2xl space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-cyan-300 font-bold flex items-center gap-1.5 text-xs">
-                <LinkIcon className="w-4 h-4 text-cyan-400" /> Paste Problem URL (Auto-Extracts Question, Topics & Examples) *
+                <LinkIcon className="w-4 h-4 text-cyan-400" /> Paste Problem URL (Auto-Extracts Question & Topics) *
               </label>
               {fetchingMetadata && (
                 <span className="text-[10px] text-cyan-400 font-semibold animate-pulse flex items-center gap-1">
@@ -270,7 +278,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             </div>
           </div>
 
-          {/* Key Observations & Notes (Asked in creation modal) */}
+          {/* Key Observations & Notes */}
           <div className="space-y-1.5">
             <label className="block text-slate-300 font-bold flex items-center gap-1.5 text-xs">
               <BookOpen className="w-4 h-4 text-cyan-400" /> Key Observations & Problem Notes
@@ -278,12 +286,12 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             <MarkdownEditor
               value={formData.notes}
               onChange={(val) => setFormData({ ...formData, notes: val })}
-              placeholder="Store key observations, problem statement, or trick takeaways..."
+              placeholder="Store problem description, examples, and key observations..."
             />
           </div>
 
-          {/* Solutions Storage Section (C++ Only) */}
-          <div className="space-y-2 border-t border-slate-800 pt-3">
+          {/* Solutions Storage Section with Per-Solution Time & Space Complexity */}
+          <div className="space-y-3 border-t border-slate-800 pt-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-slate-200 flex items-center gap-1.5 text-xs">
                 <Code2 className="w-4 h-4 text-cyan-400" /> C++ Solution Storage
@@ -314,7 +322,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
                   </div>
                 ))}
 
-                {/* Plus Icon Button to add Optimal 2, Optimal 3, etc. */}
+                {/* Plus Icon Button */}
                 <button
                   type="button"
                   onClick={handleAddOptimalTab}
@@ -335,8 +343,53 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
                 setSolutions(updated);
               }}
               language="cpp"
-              height="200px"
+              height="180px"
             />
+
+            {/* Predefined Time & Space Complexity Dropdowns for Current Solution */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl">
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-[11px]">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" /> Time Complexity ({currentSol.title})
+                </label>
+                <select
+                  value={currentSol.timeComplexity}
+                  onChange={(e) => {
+                    const updated = [...solutions];
+                    updated[activeTabIdx].timeComplexity = e.target.value;
+                    setSolutions(updated);
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-amber-300 font-mono text-xs focus:outline-none"
+                >
+                  {TIME_COMPLEXITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-[11px]">
+                  <HardDrive className="w-3.5 h-3.5 text-purple-400" /> Space Complexity ({currentSol.title})
+                </label>
+                <select
+                  value={currentSol.spaceComplexity}
+                  onChange={(e) => {
+                    const updated = [...solutions];
+                    updated[activeTabIdx].spaceComplexity = e.target.value;
+                    setSolutions(updated);
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-purple-300 font-mono text-xs focus:outline-none"
+                >
+                  {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* Modal Footer */}

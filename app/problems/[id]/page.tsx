@@ -7,6 +7,7 @@ import Sidebar from '@/components/sidebar';
 import Header from '@/components/header';
 import MonacoCodeEditor from '@/components/monaco-code-editor';
 import MarkdownEditor from '@/components/markdown-editor';
+import { TIME_COMPLEXITY_OPTIONS, SPACE_COMPLEXITY_OPTIONS } from '@/lib/complexity-constants';
 import {
   ArrowLeft,
   ExternalLink,
@@ -18,6 +19,8 @@ import {
   Trash2,
   Edit2,
   Tag as TagIcon,
+  Clock,
+  HardDrive,
 } from 'lucide-react';
 
 interface SolutionTab {
@@ -25,6 +28,8 @@ interface SolutionTab {
   type: string;
   title: string;
   code: string;
+  timeComplexity: string;
+  spaceComplexity: string;
 }
 
 export default function ProblemDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -36,11 +41,11 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Dynamic C++ Solution Tabs
+  // Dynamic C++ Solution Tabs with Per-Solution Complexities
   const [solutions, setSolutions] = useState<SolutionTab[]>([
-    { type: 'BRUTE', title: 'Brute Force', code: '// Brute Force Approach in C++\n' },
-    { type: 'BETTER', title: 'Better', code: '// Better Approach in C++\n' },
-    { type: 'OPTIMAL', title: 'Optimal 1', code: '// Optimal 1 Approach in C++\n' },
+    { type: 'BRUTE', title: 'Brute Force', code: '// Brute Force Approach in C++\n', timeComplexity: 'O(N^2)', spaceComplexity: 'O(1)' },
+    { type: 'BETTER', title: 'Better', code: '// Better Approach in C++\n', timeComplexity: 'O(N log N)', spaceComplexity: 'O(N)' },
+    { type: 'OPTIMAL', title: 'Optimal 1', code: '// Optimal 1 Approach in C++\n', timeComplexity: 'O(N)', spaceComplexity: 'O(1)' },
   ]);
 
   const [activeTabIdx, setActiveTabIdx] = useState(0);
@@ -60,6 +65,8 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             type: s.type || 'OPTIMAL',
             title: s.title || (s.type === 'BRUTE' ? 'Brute Force' : s.type === 'BETTER' ? 'Better' : s.type === 'ALTERNATIVE' ? 'Optimal 2' : 'Optimal 1'),
             code: s.code || '',
+            timeComplexity: s.timeComplexity || 'O(N)',
+            spaceComplexity: s.spaceComplexity || 'O(1)',
           }));
           setSolutions(loaded);
         }
@@ -79,7 +86,10 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
   const handleAddOptimalTab = () => {
     const optimalCount = solutions.filter((s) => s.title.startsWith('Optimal')).length;
     const newTitle = `Optimal ${optimalCount + 1}`;
-    setSolutions([...solutions, { type: 'OPTIMAL', title: newTitle, code: '' }]);
+    setSolutions([
+      ...solutions,
+      { type: 'OPTIMAL', title: newTitle, code: '', timeComplexity: 'O(N)', spaceComplexity: 'O(1)' },
+    ]);
     setActiveTabIdx(solutions.length);
   };
 
@@ -108,6 +118,8 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             title: s.title,
             language: 'cpp',
             code: s.code,
+            timeComplexity: s.timeComplexity,
+            spaceComplexity: s.spaceComplexity,
           })),
         }),
       });
@@ -270,7 +282,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* 2. Key Observations & Problem Notes (PLACED ABOVE THE CODE) */}
+          {/* 2. Key Observations & Problem Notes (ABOVE CODE) */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
             <h3 className="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-cyan-400" /> Problem Statement, Examples & Observations (Above Code)
@@ -282,7 +294,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             />
           </div>
 
-          {/* 3. Dynamic Solution Storage Section (C++ Only) */}
+          {/* 3. Dynamic Solution Storage Section with Per-Solution Complexities */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
               {/* Dynamic Solution Tabs */}
@@ -350,7 +362,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                   );
                 })}
 
-                {/* Plus Icon Button to add Optimal 2, Optimal 3, etc. */}
+                {/* Plus Icon Button */}
                 <button
                   type="button"
                   onClick={handleAddOptimalTab}
@@ -375,8 +387,53 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
                 setSolutions(updated);
               }}
               language="cpp"
-              height="380px"
+              height="360px"
             />
+
+            {/* Predefined Time & Space Complexity Dropdowns for Selected Solution */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl">
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-xs">
+                  <Clock className="w-4 h-4 text-amber-400" /> Time Complexity ({activeSol.title})
+                </label>
+                <select
+                  value={activeSol.timeComplexity || 'O(N)'}
+                  onChange={(e) => {
+                    const updated = [...solutions];
+                    updated[activeTabIdx].timeComplexity = e.target.value;
+                    setSolutions(updated);
+                  }}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-amber-300 font-mono text-xs focus:outline-none font-bold"
+                >
+                  {TIME_COMPLEXITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1 flex items-center gap-1.5 text-xs">
+                  <HardDrive className="w-4 h-4 text-purple-400" /> Space Complexity ({activeSol.title})
+                </label>
+                <select
+                  value={activeSol.spaceComplexity || 'O(1)'}
+                  onChange={(e) => {
+                    const updated = [...solutions];
+                    updated[activeTabIdx].spaceComplexity = e.target.value;
+                    setSolutions(updated);
+                  }}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-purple-300 font-mono text-xs focus:outline-none font-bold"
+                >
+                  {SPACE_COMPLEXITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
         </main>
       </div>

@@ -40,13 +40,15 @@ model Problem {
 }
 
 model ProblemSolution {
-  id        String   @id @default(uuid())
-  problemId String
-  type      String   // BRUTE, BETTER, OPTIMAL, ALTERNATIVE
-  language  String   @default("cpp")
-  code      String
-  title     String?
-  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  id              String   @id @default(uuid())
+  problemId       String
+  type            String   // BRUTE, BETTER, OPTIMAL, ALTERNATIVE
+  language        String   @default("cpp")
+  code            String
+  title           String?
+  timeComplexity  String?  @default("O(N)")
+  spaceComplexity String?  @default("O(1)")
+  problem         Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
 
 model RevisionLog {

@@ -31,6 +31,8 @@ export type ProblemSolutionMinAggregateOutputType = {
   language: string | null
   code: string | null
   title: string | null
+  timeComplexity: string | null
+  spaceComplexity: string | null
 }
 
 export type ProblemSolutionMaxAggregateOutputType = {
@@ -40,6 +42,8 @@ export type ProblemSolutionMaxAggregateOutputType = {
   language: string | null
   code: string | null
   title: string | null
+  timeComplexity: string | null
+  spaceComplexity: string | null
 }
 
 export type ProblemSolutionCountAggregateOutputType = {
@@ -49,6 +53,8 @@ export type ProblemSolutionCountAggregateOutputType = {
   language: number
   code: number
   title: number
+  timeComplexity: number
+  spaceComplexity: number
   _all: number
 }
 
@@ -60,6 +66,8 @@ export type ProblemSolutionMinAggregateInputType = {
   language?: true
   code?: true
   title?: true
+  timeComplexity?: true
+  spaceComplexity?: true
 }
 
 export type ProblemSolutionMaxAggregateInputType = {
@@ -69,6 +77,8 @@ export type ProblemSolutionMaxAggregateInputType = {
   language?: true
   code?: true
   title?: true
+  timeComplexity?: true
+  spaceComplexity?: true
 }
 
 export type ProblemSolutionCountAggregateInputType = {
@@ -78,6 +88,8 @@ export type ProblemSolutionCountAggregateInputType = {
   language?: true
   code?: true
   title?: true
+  timeComplexity?: true
+  spaceComplexity?: true
   _all?: true
 }
 
@@ -160,6 +172,8 @@ export type ProblemSolutionGroupByOutputType = {
   language: string
   code: string
   title: string | null
+  timeComplexity: string | null
+  spaceComplexity: string | null
   _count: ProblemSolutionCountAggregateOutputType | null
   _min: ProblemSolutionMinAggregateOutputType | null
   _max: ProblemSolutionMaxAggregateOutputType | null
@@ -190,6 +204,8 @@ export type ProblemSolutionWhereInput = {
   language?: Prisma.StringFilter<"ProblemSolution"> | string
   code?: Prisma.StringFilter<"ProblemSolution"> | string
   title?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
+  timeComplexity?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
+  spaceComplexity?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
   problem?: Prisma.XOR<Prisma.ProblemScalarRelationFilter, Prisma.ProblemWhereInput>
 }
 
@@ -200,6 +216,8 @@ export type ProblemSolutionOrderByWithRelationInput = {
   language?: Prisma.SortOrder
   code?: Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
+  timeComplexity?: Prisma.SortOrderInput | Prisma.SortOrder
+  spaceComplexity?: Prisma.SortOrderInput | Prisma.SortOrder
   problem?: Prisma.ProblemOrderByWithRelationInput
 }
 
@@ -213,6 +231,8 @@ export type ProblemSolutionWhereUniqueInput = Prisma.AtLeast<{
   language?: Prisma.StringFilter<"ProblemSolution"> | string
   code?: Prisma.StringFilter<"ProblemSolution"> | string
   title?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
+  timeComplexity?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
+  spaceComplexity?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
   problem?: Prisma.XOR<Prisma.ProblemScalarRelationFilter, Prisma.ProblemWhereInput>
 }, "id">
 
@@ -223,6 +243,8 @@ export type ProblemSolutionOrderByWithAggregationInput = {
   language?: Prisma.SortOrder
   code?: Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
+  timeComplexity?: Prisma.SortOrderInput | Prisma.SortOrder
+  spaceComplexity?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ProblemSolutionCountOrderByAggregateInput
   _max?: Prisma.ProblemSolutionMaxOrderByAggregateInput
   _min?: Prisma.ProblemSolutionMinOrderByAggregateInput
@@ -238,6 +260,8 @@ export type ProblemSolutionScalarWhereWithAggregatesInput = {
   language?: Prisma.StringWithAggregatesFilter<"ProblemSolution"> | string
   code?: Prisma.StringWithAggregatesFilter<"ProblemSolution"> | string
   title?: Prisma.StringNullableWithAggregatesFilter<"ProblemSolution"> | string | null
+  timeComplexity?: Prisma.StringNullableWithAggregatesFilter<"ProblemSolution"> | string | null
+  spaceComplexity?: Prisma.StringNullableWithAggregatesFilter<"ProblemSolution"> | string | null
 }
 
 export type ProblemSolutionCreateInput = {
@@ -246,6 +270,8 @@ export type ProblemSolutionCreateInput = {
   language?: string
   code: string
   title?: string | null
+  timeComplexity?: string | null
+  spaceComplexity?: string | null
   problem: Prisma.ProblemCreateNestedOneWithoutSolutionsInput
 }
 
@@ -256,6 +282,8 @@ export type ProblemSolutionUncheckedCreateInput = {
   language?: string
   code: string
   title?: string | null
+  timeComplexity?: string | null
+  spaceComplexity?: string | null
 }
 
 export type ProblemSolutionUpdateInput = {
@@ -264,6 +292,8 @@ export type ProblemSolutionUpdateInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timeComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   problem?: Prisma.ProblemUpdateOneRequiredWithoutSolutionsNestedInput
 }
 
@@ -274,6 +304,8 @@ export type ProblemSolutionUncheckedUpdateInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timeComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProblemSolutionCreateManyInput = {
@@ -283,6 +315,8 @@ export type ProblemSolutionCreateManyInput = {
   language?: string
   code: string
   title?: string | null
+  timeComplexity?: string | null
+  spaceComplexity?: string | null
 }
 
 export type ProblemSolutionUpdateManyMutationInput = {
@@ -291,6 +325,8 @@ export type ProblemSolutionUpdateManyMutationInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timeComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProblemSolutionUncheckedUpdateManyInput = {
@@ -300,6 +336,8 @@ export type ProblemSolutionUncheckedUpdateManyInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timeComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProblemSolutionListRelationFilter = {
@@ -319,6 +357,8 @@ export type ProblemSolutionCountOrderByAggregateInput = {
   language?: Prisma.SortOrder
   code?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  timeComplexity?: Prisma.SortOrder
+  spaceComplexity?: Prisma.SortOrder
 }
 
 export type ProblemSolutionMaxOrderByAggregateInput = {
@@ -328,6 +368,8 @@ export type ProblemSolutionMaxOrderByAggregateInput = {
   language?: Prisma.SortOrder
   code?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  timeComplexity?: Prisma.SortOrder
+  spaceComplexity?: Prisma.SortOrder
 }
 
 export type ProblemSolutionMinOrderByAggregateInput = {
@@ -337,6 +379,8 @@ export type ProblemSolutionMinOrderByAggregateInput = {
   language?: Prisma.SortOrder
   code?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  timeComplexity?: Prisma.SortOrder
+  spaceComplexity?: Prisma.SortOrder
 }
 
 export type ProblemSolutionCreateNestedManyWithoutProblemInput = {
@@ -387,6 +431,8 @@ export type ProblemSolutionCreateWithoutProblemInput = {
   language?: string
   code: string
   title?: string | null
+  timeComplexity?: string | null
+  spaceComplexity?: string | null
 }
 
 export type ProblemSolutionUncheckedCreateWithoutProblemInput = {
@@ -395,6 +441,8 @@ export type ProblemSolutionUncheckedCreateWithoutProblemInput = {
   language?: string
   code: string
   title?: string | null
+  timeComplexity?: string | null
+  spaceComplexity?: string | null
 }
 
 export type ProblemSolutionCreateOrConnectWithoutProblemInput = {
@@ -433,6 +481,8 @@ export type ProblemSolutionScalarWhereInput = {
   language?: Prisma.StringFilter<"ProblemSolution"> | string
   code?: Prisma.StringFilter<"ProblemSolution"> | string
   title?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
+  timeComplexity?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
+  spaceComplexity?: Prisma.StringNullableFilter<"ProblemSolution"> | string | null
 }
 
 export type ProblemSolutionCreateManyProblemInput = {
@@ -441,6 +491,8 @@ export type ProblemSolutionCreateManyProblemInput = {
   language?: string
   code: string
   title?: string | null
+  timeComplexity?: string | null
+  spaceComplexity?: string | null
 }
 
 export type ProblemSolutionUpdateWithoutProblemInput = {
@@ -449,6 +501,8 @@ export type ProblemSolutionUpdateWithoutProblemInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timeComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProblemSolutionUncheckedUpdateWithoutProblemInput = {
@@ -457,6 +511,8 @@ export type ProblemSolutionUncheckedUpdateWithoutProblemInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timeComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProblemSolutionUncheckedUpdateManyWithoutProblemInput = {
@@ -465,6 +521,8 @@ export type ProblemSolutionUncheckedUpdateManyWithoutProblemInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timeComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceComplexity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -476,6 +534,8 @@ export type ProblemSolutionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   language?: boolean
   code?: boolean
   title?: boolean
+  timeComplexity?: boolean
+  spaceComplexity?: boolean
   problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["problemSolution"]>
 
@@ -486,6 +546,8 @@ export type ProblemSolutionSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   language?: boolean
   code?: boolean
   title?: boolean
+  timeComplexity?: boolean
+  spaceComplexity?: boolean
   problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["problemSolution"]>
 
@@ -496,6 +558,8 @@ export type ProblemSolutionSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   language?: boolean
   code?: boolean
   title?: boolean
+  timeComplexity?: boolean
+  spaceComplexity?: boolean
   problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["problemSolution"]>
 
@@ -506,9 +570,11 @@ export type ProblemSolutionSelectScalar = {
   language?: boolean
   code?: boolean
   title?: boolean
+  timeComplexity?: boolean
+  spaceComplexity?: boolean
 }
 
-export type ProblemSolutionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "problemId" | "type" | "language" | "code" | "title", ExtArgs["result"]["problemSolution"]>
+export type ProblemSolutionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "problemId" | "type" | "language" | "code" | "title" | "timeComplexity" | "spaceComplexity", ExtArgs["result"]["problemSolution"]>
 export type ProblemSolutionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }
@@ -531,6 +597,8 @@ export type $ProblemSolutionPayload<ExtArgs extends runtime.Types.Extensions.Int
     language: string
     code: string
     title: string | null
+    timeComplexity: string | null
+    spaceComplexity: string | null
   }, ExtArgs["result"]["problemSolution"]>
   composites: {}
 }
@@ -961,6 +1029,8 @@ export interface ProblemSolutionFieldRefs {
   readonly language: Prisma.FieldRef<"ProblemSolution", 'String'>
   readonly code: Prisma.FieldRef<"ProblemSolution", 'String'>
   readonly title: Prisma.FieldRef<"ProblemSolution", 'String'>
+  readonly timeComplexity: Prisma.FieldRef<"ProblemSolution", 'String'>
+  readonly spaceComplexity: Prisma.FieldRef<"ProblemSolution", 'String'>
 }
     
 

@@ -140,6 +140,8 @@ export async function POST(request: Request) {
               title: s.title || '',
               language: 'cpp',
               code: s.code || '',
+              timeComplexity: s.timeComplexity || 'O(N)',
+              spaceComplexity: s.spaceComplexity || 'O(1)',
             })),
         },
       },
@@ -201,15 +203,27 @@ export async function PUT(request: Request) {
     if (data.timeTakenMinutes !== undefined) updateData.timeTakenMinutes = data.timeTakenMinutes ? Number(data.timeTakenMinutes) : null;
     if (data.mistakes !== undefined) updateData.mistakes = data.mistakes;
     if (data.notes !== undefined) updateData.notes = data.notes;
-    if (data.dryRun !== undefined) updateData.dryRun = data.dryRun;
-    if (data.timeComplexity !== undefined) updateData.timeComplexity = data.timeComplexity;
-    if (data.spaceComplexity !== undefined) updateData.spaceComplexity = data.spaceComplexity;
-    if (data.interviewTips !== undefined) updateData.interviewTips = data.interviewTips;
 
     const updated = await db.problem.update({
       where: { id },
       data: updateData,
     });
+
+    // Update solutions if passed
+    if (data.solutions && Array.isArray(data.solutions)) {
+      await db.problemSolution.deleteMany({ where: { problemId: id } });
+      await db.problemSolution.createMany({
+        data: data.solutions.map((s: any) => ({
+          problemId: id,
+          type: s.type || 'OPTIMAL',
+          title: s.title || '',
+          language: 'cpp',
+          code: s.code || '',
+          timeComplexity: s.timeComplexity || 'O(N)',
+          spaceComplexity: s.spaceComplexity || 'O(1)',
+        })),
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (err: any) {

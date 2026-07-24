@@ -1090,7 +1090,9 @@ export const ProblemSolutionScalarFieldEnum = {
   type: 'type',
   language: 'language',
   code: 'code',
-  title: 'title'
+  title: 'title',
+  timeComplexity: 'timeComplexity',
+  spaceComplexity: 'spaceComplexity'
 } as const
 
 export type ProblemSolutionScalarFieldEnum = (typeof ProblemSolutionScalarFieldEnum)[keyof typeof ProblemSolutionScalarFieldEnum]
