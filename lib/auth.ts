@@ -8,10 +8,12 @@ export async function verifyPassword(password: string): Promise<{ valid: boolean
   const adminPassword = process.env.APP_PASSWORD || 'dsa-master-password';
   const guestPassword = process.env.GUEST_PASSWORD || 'dsa-guest-password';
 
-  if (password === adminPassword) {
+  const cleanPass = (password || '').trim();
+
+  if (cleanPass === adminPassword.trim()) {
     return { valid: true, role: 'admin' };
   }
-  if (password === guestPassword) {
+  if (cleanPass === guestPassword.trim()) {
     return { valid: true, role: 'guest' };
   }
 

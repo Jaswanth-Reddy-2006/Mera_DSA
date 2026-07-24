@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, ArrowRight, ShieldCheck, Eye } from 'lucide-react';
+import { Lock, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
@@ -19,7 +19,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password: password.trim() }),
       });
 
       if (res.ok) {
@@ -48,7 +48,7 @@ export default function LoginPage() {
           </div>
           <h1 className="text-2xl font-extrabold text-slate-100">MERA DSA</h1>
           <p className="text-xs text-slate-400 max-w-xs mx-auto">
-            Personal Knowledge Base & Revision Engine. Enter Master Admin or Guest Access password.
+            Personal Knowledge Base & Revision Engine. Enter password to access vault.
           </p>
         </div>
 
@@ -88,15 +88,6 @@ export default function LoginPage() {
             )}
           </button>
         </form>
-
-        <div className="pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-          <span className="flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" /> Admin Access
-          </span>
-          <span className="flex items-center gap-1">
-            <Eye className="w-3.5 h-3.5 text-purple-400" /> Guest Read-Only Access
-          </span>
-        </div>
       </div>
     </div>
   );
