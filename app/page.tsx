@@ -14,6 +14,7 @@ import {
   BookOpen,
   Repeat,
   AlertCircle,
+  ShieldAlert,
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -21,6 +22,16 @@ export default function Dashboard() {
   const [problems, setProblems] = useState<ProblemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'guest' | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => setUserRole(data.role))
+      .catch(() => setUserRole('guest'));
+  }, []);
+
+  const isGuest = userRole === 'guest';
 
   const fetchData = async () => {
     setLoading(true);
@@ -72,12 +83,18 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setAddModalOpen(true)}
-                className="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <PlusCircle className="w-4 h-4" /> Add Problem
-              </button>
+              {isGuest ? (
+                <span className="px-3 py-2 bg-purple-950/60 border border-purple-800/60 rounded-xl text-purple-300 text-xs font-bold flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 text-purple-400" /> Read-Only Guest View
+                </span>
+              ) : (
+                <button
+                  onClick={() => setAddModalOpen(true)}
+                  className="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <PlusCircle className="w-4 h-4" /> Add Problem
+                </button>
+              )}
               <Link
                 href="/formula"
                 className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl border border-slate-700 transition-all flex items-center gap-2"
@@ -208,7 +225,9 @@ export default function Dashboard() {
         </main>
       </div>
 
-      <AddProblemModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onCreated={fetchData} />
+      {!isGuest && (
+        <AddProblemModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onCreated={fetchData} />
+      )}
     </div>
   );
 }

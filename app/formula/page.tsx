@@ -5,26 +5,23 @@ import Sidebar from '@/components/sidebar';
 import Header from '@/components/header';
 import MonacoCodeEditor from '@/components/monaco-code-editor';
 import { FLAT_FORMULA_ITEMS, FlatFormulaItem } from '@/lib/default-formula-data';
-import { Code2, BookOpen, Zap, Plus, X, Sparkles } from 'lucide-react';
+import { Code2, BookOpen, Zap, Plus, X, Sparkles, ShieldAlert } from 'lucide-react';
 
 export default function FormulaSheetPage() {
   const [items, setItems] = useState<FlatFormulaItem[]>(FLAT_FORMULA_ITEMS);
   const [selectedItem, setSelectedItem] = useState<FlatFormulaItem>(FLAT_FORMULA_ITEMS[0]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'guest' | null>(null);
 
-  // New Custom Formula Form State
-  const [newFormula, setNewFormula] = useState({
-    title: '',
-    syntax: '',
-    description: '',
-    declaration: '',
-    insertion: '',
-    lookup: '',
-    deletion: '',
-    iteration: '',
-    sizeCheck: '',
-  });
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => setUserRole(data.role))
+      .catch(() => setUserRole('guest'));
+  }, []);
+
+  const isGuest = userRole === 'guest';
 
   // Fetch custom formulas from backend
   const fetchFormulas = async () => {
@@ -51,7 +48,7 @@ export default function FormulaSheetPage() {
   // Save new custom formula
   const handleSaveCustomFormula = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newFormula.title.trim() || !newFormula.syntax.trim()) return;
+    if (isGuest || !newFormula.title.trim() || !newFormula.syntax.trim()) return;
 
     setSaving(true);
     try {
@@ -85,6 +82,18 @@ export default function FormulaSheetPage() {
     }
   };
 
+  const [newFormula, setNewFormula] = useState({
+    title: '',
+    syntax: '',
+    description: '',
+    declaration: '',
+    insertion: '',
+    lookup: '',
+    deletion: '',
+    iteration: '',
+    sizeCheck: '',
+  });
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-[#090d16] text-slate-100 font-sans">
       <Sidebar />
@@ -99,12 +108,18 @@ export default function FormulaSheetPage() {
               <span className="font-extrabold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <BookOpen className="w-4 h-4 text-cyan-400" /> Formula Vault
               </span>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="px-2.5 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-[11px] flex items-center gap-1 transition-all shadow-md cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Formula
-              </button>
+              {isGuest ? (
+                <span className="text-[10px] text-purple-400 font-semibold flex items-center gap-1">
+                  <ShieldAlert className="w-3 h-3" /> Read-Only
+                </span>
+              ) : (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-2.5 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-[11px] flex items-center gap-1 transition-all shadow-md cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Formula
+                </button>
+              )}
             </div>
 
             {/* Left Card Independent Scrollbar */}
@@ -223,7 +238,7 @@ export default function FormulaSheetPage() {
       </div>
 
       {/* Modal to Add Custom Formula */}
-      {isModalOpen && (
+      {isModalOpen && !isGuest && (
         <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 font-sans">
           <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
             <div className="p-3.5 sm:p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">

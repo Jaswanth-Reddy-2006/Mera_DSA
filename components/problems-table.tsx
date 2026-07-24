@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   useReactTable,
@@ -39,6 +39,21 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
   const [patternFilter, setPatternFilter] = useState('All');
   const [topicFilter, setTopicFilter] = useState('All');
   const [editingCell, setEditingCell] = useState<{ rowId: string; colId: string } | null>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'guest' | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => setUserRole(data.role))
+      .catch(() => setUserRole('guest'));
+  }, []);
+
+  const isGuest = userRole === 'guest';
+
+  // Keep internal data in sync with props
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
 
   // Extract all unique pattern names created by user
   const uniquePatterns = useMemo(() => {
@@ -64,6 +79,7 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
 
   // Quick update problem cell and autosave
   const handleCellSave = async (problemId: string, field: string, value: any) => {
+    if (isGuest) return;
     try {
       setData((prev) =>
         prev.map((item) => (item.id === problemId ? { ...item, [field]: value } : item))
@@ -86,6 +102,7 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
   // Delete problem row
   const handleDeleteRow = async (e: React.MouseEvent, problemId: string) => {
     e.stopPropagation();
+    if (isGuest) return;
     if (!confirm('Are you sure you want to delete this problem?')) return;
 
     try {
@@ -98,8 +115,8 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
   };
 
   // Columns definition for TanStack Table
-  const columns = useMemo<ColumnDef<ProblemData>[]>(
-    () => [
+  const columns = useMemo<ColumnDef<ProblemData>[]>(() => {
+    const cols: ColumnDef<ProblemData>[] = [
       {
         accessorKey: 'title',
         header: ({ column }) => (
@@ -111,11 +128,11 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
           </button>
         ),
         cell: ({ row }) => {
-          const isEditing = editingCell?.rowId === row.original.id && editingCell?.colId === 'title';
+          const isEditing = editingCell?.rowId === row.original.id && editingCell?.colId === 'title' && !isGuest;
           return (
             <div
               className="font-semibold text-slate-100 group-hover:text-cyan-300 transition-colors flex items-center justify-between cursor-pointer"
-              onDoubleClick={() => setEditingCell({ rowId: row.original.id, colId: 'title' })}
+              onDoubleClick={() => !isGuest && setEditingCell({ rowId: row.original.id, colId: 'title' })}
             >
               {isEditing ? (
                 <input
@@ -248,7 +265,10 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
           );
         },
       },
-      {
+    ];
+
+    if (!isGuest) {
+      cols.push({
         id: 'actions',
         header: '',
         cell: ({ row }) => (
@@ -262,10 +282,11 @@ export default function ProblemsTable({ initialData, onRefresh }: ProblemsTableP
             </button>
           </div>
         ),
-      },
-    ],
-    [editingCell]
-  );
+      });
+    }
+
+    return cols;
+  }, [editingCell, isGuest]);
 
   // Fast Memoized Multi-Filter Engine
   const filteredData = useMemo(() => {
