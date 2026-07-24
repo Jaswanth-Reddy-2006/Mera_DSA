@@ -43,6 +43,7 @@ export type ProblemMinAggregateOutputType = {
   title: string | null
   platform: string | null
   problemUrl: string | null
+  problemDescription: string | null
   difficulty: string | null
   topic: string | null
   subtopic: string | null
@@ -69,6 +70,7 @@ export type ProblemMaxAggregateOutputType = {
   title: string | null
   platform: string | null
   problemUrl: string | null
+  problemDescription: string | null
   difficulty: string | null
   topic: string | null
   subtopic: string | null
@@ -95,6 +97,7 @@ export type ProblemCountAggregateOutputType = {
   title: number
   platform: number
   problemUrl: number
+  problemDescription: number
   difficulty: number
   topic: number
   subtopic: number
@@ -135,6 +138,7 @@ export type ProblemMinAggregateInputType = {
   title?: true
   platform?: true
   problemUrl?: true
+  problemDescription?: true
   difficulty?: true
   topic?: true
   subtopic?: true
@@ -161,6 +165,7 @@ export type ProblemMaxAggregateInputType = {
   title?: true
   platform?: true
   problemUrl?: true
+  problemDescription?: true
   difficulty?: true
   topic?: true
   subtopic?: true
@@ -187,6 +192,7 @@ export type ProblemCountAggregateInputType = {
   title?: true
   platform?: true
   problemUrl?: true
+  problemDescription?: true
   difficulty?: true
   topic?: true
   subtopic?: true
@@ -300,6 +306,7 @@ export type ProblemGroupByOutputType = {
   title: string
   platform: string
   problemUrl: string | null
+  problemDescription: string | null
   difficulty: string
   topic: string
   subtopic: string | null
@@ -349,6 +356,7 @@ export type ProblemWhereInput = {
   title?: Prisma.StringFilter<"Problem"> | string
   platform?: Prisma.StringFilter<"Problem"> | string
   problemUrl?: Prisma.StringNullableFilter<"Problem"> | string | null
+  problemDescription?: Prisma.StringNullableFilter<"Problem"> | string | null
   difficulty?: Prisma.StringFilter<"Problem"> | string
   topic?: Prisma.StringFilter<"Problem"> | string
   subtopic?: Prisma.StringNullableFilter<"Problem"> | string | null
@@ -380,6 +388,7 @@ export type ProblemOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   platform?: Prisma.SortOrder
   problemUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  problemDescription?: Prisma.SortOrderInput | Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   topic?: Prisma.SortOrder
   subtopic?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -414,6 +423,7 @@ export type ProblemWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Problem"> | string
   platform?: Prisma.StringFilter<"Problem"> | string
   problemUrl?: Prisma.StringNullableFilter<"Problem"> | string | null
+  problemDescription?: Prisma.StringNullableFilter<"Problem"> | string | null
   difficulty?: Prisma.StringFilter<"Problem"> | string
   topic?: Prisma.StringFilter<"Problem"> | string
   subtopic?: Prisma.StringNullableFilter<"Problem"> | string | null
@@ -445,6 +455,7 @@ export type ProblemOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   platform?: Prisma.SortOrder
   problemUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  problemDescription?: Prisma.SortOrderInput | Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   topic?: Prisma.SortOrder
   subtopic?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -479,6 +490,7 @@ export type ProblemScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Problem"> | string
   platform?: Prisma.StringWithAggregatesFilter<"Problem"> | string
   problemUrl?: Prisma.StringNullableWithAggregatesFilter<"Problem"> | string | null
+  problemDescription?: Prisma.StringNullableWithAggregatesFilter<"Problem"> | string | null
   difficulty?: Prisma.StringWithAggregatesFilter<"Problem"> | string
   topic?: Prisma.StringWithAggregatesFilter<"Problem"> | string
   subtopic?: Prisma.StringNullableWithAggregatesFilter<"Problem"> | string | null
@@ -505,6 +517,7 @@ export type ProblemCreateInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -536,6 +549,7 @@ export type ProblemUncheckedCreateInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -567,6 +581,7 @@ export type ProblemUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -598,6 +613,7 @@ export type ProblemUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -629,6 +645,7 @@ export type ProblemCreateManyInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -655,6 +672,7 @@ export type ProblemUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -681,6 +699,7 @@ export type ProblemUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -707,6 +726,7 @@ export type ProblemCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   platform?: Prisma.SortOrder
   problemUrl?: Prisma.SortOrder
+  problemDescription?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   topic?: Prisma.SortOrder
   subtopic?: Prisma.SortOrder
@@ -739,6 +759,7 @@ export type ProblemMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   platform?: Prisma.SortOrder
   problemUrl?: Prisma.SortOrder
+  problemDescription?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   topic?: Prisma.SortOrder
   subtopic?: Prisma.SortOrder
@@ -765,6 +786,7 @@ export type ProblemMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   platform?: Prisma.SortOrder
   problemUrl?: Prisma.SortOrder
+  problemDescription?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   topic?: Prisma.SortOrder
   subtopic?: Prisma.SortOrder
@@ -904,6 +926,7 @@ export type ProblemCreateWithoutSolutionsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -934,6 +957,7 @@ export type ProblemUncheckedCreateWithoutSolutionsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -980,6 +1004,7 @@ export type ProblemUpdateWithoutSolutionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1010,6 +1035,7 @@ export type ProblemUncheckedUpdateWithoutSolutionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1040,6 +1066,7 @@ export type ProblemCreateWithoutRevisionLogsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1070,6 +1097,7 @@ export type ProblemUncheckedCreateWithoutRevisionLogsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1116,6 +1144,7 @@ export type ProblemUpdateWithoutRevisionLogsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1146,6 +1175,7 @@ export type ProblemUncheckedUpdateWithoutRevisionLogsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1176,6 +1206,7 @@ export type ProblemCreateWithoutTagsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1206,6 +1237,7 @@ export type ProblemUncheckedCreateWithoutTagsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1252,6 +1284,7 @@ export type ProblemUpdateWithoutTagsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1282,6 +1315,7 @@ export type ProblemUncheckedUpdateWithoutTagsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1312,6 +1346,7 @@ export type ProblemCreateWithoutSourceRelationsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1342,6 +1377,7 @@ export type ProblemUncheckedCreateWithoutSourceRelationsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1377,6 +1413,7 @@ export type ProblemCreateWithoutTargetRelationsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1407,6 +1444,7 @@ export type ProblemUncheckedCreateWithoutTargetRelationsInput = {
   title: string
   platform?: string
   problemUrl?: string | null
+  problemDescription?: string | null
   difficulty?: string
   topic?: string
   subtopic?: string | null
@@ -1453,6 +1491,7 @@ export type ProblemUpdateWithoutSourceRelationsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1483,6 +1522,7 @@ export type ProblemUncheckedUpdateWithoutSourceRelationsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1524,6 +1564,7 @@ export type ProblemUpdateWithoutTargetRelationsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1554,6 +1595,7 @@ export type ProblemUncheckedUpdateWithoutTargetRelationsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   problemUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  problemDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   subtopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1651,6 +1693,7 @@ export type ProblemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   title?: boolean
   platform?: boolean
   problemUrl?: boolean
+  problemDescription?: boolean
   difficulty?: boolean
   topic?: boolean
   subtopic?: boolean
@@ -1683,6 +1726,7 @@ export type ProblemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   title?: boolean
   platform?: boolean
   problemUrl?: boolean
+  problemDescription?: boolean
   difficulty?: boolean
   topic?: boolean
   subtopic?: boolean
@@ -1709,6 +1753,7 @@ export type ProblemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   title?: boolean
   platform?: boolean
   problemUrl?: boolean
+  problemDescription?: boolean
   difficulty?: boolean
   topic?: boolean
   subtopic?: boolean
@@ -1735,6 +1780,7 @@ export type ProblemSelectScalar = {
   title?: boolean
   platform?: boolean
   problemUrl?: boolean
+  problemDescription?: boolean
   difficulty?: boolean
   topic?: boolean
   subtopic?: boolean
@@ -1756,7 +1802,7 @@ export type ProblemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProblemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "platform" | "problemUrl" | "difficulty" | "topic" | "subtopic" | "pattern" | "status" | "rating" | "timeTakenMinutes" | "mistakes" | "notes" | "dryRun" | "timeComplexity" | "spaceComplexity" | "interviewTips" | "isFavorite" | "solvedDate" | "lastRevisedAt" | "revisionCount" | "createdAt" | "updatedAt", ExtArgs["result"]["problem"]>
+export type ProblemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "platform" | "problemUrl" | "problemDescription" | "difficulty" | "topic" | "subtopic" | "pattern" | "status" | "rating" | "timeTakenMinutes" | "mistakes" | "notes" | "dryRun" | "timeComplexity" | "spaceComplexity" | "interviewTips" | "isFavorite" | "solvedDate" | "lastRevisedAt" | "revisionCount" | "createdAt" | "updatedAt", ExtArgs["result"]["problem"]>
 export type ProblemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   solutions?: boolean | Prisma.Problem$solutionsArgs<ExtArgs>
   revisionLogs?: boolean | Prisma.Problem$revisionLogsArgs<ExtArgs>
@@ -1782,6 +1828,7 @@ export type $ProblemPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     title: string
     platform: string
     problemUrl: string | null
+    problemDescription: string | null
     difficulty: string
     topic: string
     subtopic: string | null
@@ -2233,6 +2280,7 @@ export interface ProblemFieldRefs {
   readonly title: Prisma.FieldRef<"Problem", 'String'>
   readonly platform: Prisma.FieldRef<"Problem", 'String'>
   readonly problemUrl: Prisma.FieldRef<"Problem", 'String'>
+  readonly problemDescription: Prisma.FieldRef<"Problem", 'String'>
   readonly difficulty: Prisma.FieldRef<"Problem", 'String'>
   readonly topic: Prisma.FieldRef<"Problem", 'String'>
   readonly subtopic: Prisma.FieldRef<"Problem", 'String'>

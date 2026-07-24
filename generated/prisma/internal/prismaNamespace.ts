@@ -1060,6 +1060,7 @@ export const ProblemScalarFieldEnum = {
   title: 'title',
   platform: 'platform',
   problemUrl: 'problemUrl',
+  problemDescription: 'problemDescription',
   difficulty: 'difficulty',
   topic: 'topic',
   subtopic: 'subtopic',

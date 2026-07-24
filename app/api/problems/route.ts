@@ -49,6 +49,7 @@ export async function GET(request: Request) {
         { subtopic: { contains: search } },
         { pattern: { contains: search } },
         { notes: { contains: search } },
+        { problemDescription: { contains: search } },
         { mistakes: { contains: search } },
       ];
     }
@@ -88,6 +89,7 @@ export async function POST(request: Request) {
       title,
       platform = 'LeetCode',
       problemUrl,
+      problemDescription,
       difficulty = 'Medium',
       topic = 'Arrays',
       subtopic,
@@ -116,6 +118,7 @@ export async function POST(request: Request) {
         title,
         platform,
         problemUrl,
+        problemDescription,
         difficulty,
         topic,
         subtopic,
@@ -194,6 +197,7 @@ export async function PUT(request: Request) {
     if (data.title !== undefined) updateData.title = data.title;
     if (data.platform !== undefined) updateData.platform = data.platform;
     if (data.problemUrl !== undefined) updateData.problemUrl = data.problemUrl;
+    if (data.problemDescription !== undefined) updateData.problemDescription = data.problemDescription;
     if (data.difficulty !== undefined) updateData.difficulty = data.difficulty;
     if (data.topic !== undefined) updateData.topic = data.topic;
     if (data.subtopic !== undefined) updateData.subtopic = data.subtopic;
@@ -209,7 +213,6 @@ export async function PUT(request: Request) {
       data: updateData,
     });
 
-    // Update solutions if passed
     if (data.solutions && Array.isArray(data.solutions)) {
       await db.problemSolution.deleteMany({ where: { problemId: id } });
       await db.problemSolution.createMany({

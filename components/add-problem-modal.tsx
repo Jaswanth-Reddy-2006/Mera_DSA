@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Plus, Sparkles, Code2, Link as LinkIcon, Wand2, BookOpen, Clock, HardDrive } from 'lucide-react';
+import { X, Plus, Sparkles, Code2, Link as LinkIcon, Wand2, BookOpen, Clock, HardDrive, FileText } from 'lucide-react';
 import MonacoCodeEditor from './monaco-code-editor';
 import MarkdownEditor from './markdown-editor';
 import { parseProblemUrl } from '@/lib/url-parser';
@@ -37,7 +37,8 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
     categories: '',
     subtopic: '',
     pattern: '',
-    notes: '',
+    problemDescription: '', // Auto-written by system from URL!
+    notes: '',              // Personal Key Observations written by user!
   });
 
   // Solutions with per-solution Time & Space Complexities
@@ -84,7 +85,7 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             platform: data.platform || prev.platform,
             categories: data.categories ? data.categories.join(', ') : prev.categories,
             topic: data.topic || prev.topic,
-            notes: data.description || prev.notes,
+            problemDescription: data.description || prev.problemDescription,
           }));
         }
       } catch (err) {
@@ -185,12 +186,12 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
           <div className="p-3 sm:p-4 bg-cyan-950/30 border border-cyan-900/40 rounded-2xl space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-cyan-300 font-bold flex items-center gap-1.5 text-xs">
-                <LinkIcon className="w-4 h-4 text-cyan-400" /> Paste Problem URL (Auto-Extracts Question & Topics) *
+                <LinkIcon className="w-4 h-4 text-cyan-400" /> Paste Problem URL (Auto-Fetches Problem Statement & Examples) *
               </label>
               {fetchingMetadata && (
                 <span className="text-[10px] text-cyan-400 font-semibold animate-pulse flex items-center gap-1">
                   <div className="w-3 h-3 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                  Fetching LeetCode Details...
+                  Fetching Question Details...
                 </span>
               )}
             </div>
@@ -278,19 +279,31 @@ export default function AddProblemModal({ isOpen, onClose, onCreated }: AddProbl
             </div>
           </div>
 
-          {/* Key Observations & Notes */}
+          {/* 1. Problem Description / Statement (Written by system from URL) */}
           <div className="space-y-1.5">
-            <label className="block text-slate-300 font-bold flex items-center gap-1.5 text-xs">
-              <BookOpen className="w-4 h-4 text-cyan-400" /> Key Observations & Problem Notes
+            <label className="block text-cyan-300 font-bold flex items-center gap-1.5 text-xs">
+              <FileText className="w-4 h-4 text-cyan-400" /> Problem Statement & Examples (Auto-Written From URL)
+            </label>
+            <MarkdownEditor
+              value={formData.problemDescription}
+              onChange={(val) => setFormData({ ...formData, problemDescription: val })}
+              placeholder="Problem description and example test cases will be auto-filled after pasting URL..."
+            />
+          </div>
+
+          {/* 2. Key Observations & Notes (Written manually by user) */}
+          <div className="space-y-1.5">
+            <label className="block text-amber-300 font-bold flex items-center gap-1.5 text-xs">
+              <BookOpen className="w-4 h-4 text-amber-400" /> Key Observations & Personal Notes (Written By You)
             </label>
             <MarkdownEditor
               value={formData.notes}
               onChange={(val) => setFormData({ ...formData, notes: val })}
-              placeholder="Store problem description, examples, and key observations..."
+              placeholder="Write your key observations, tricks, edge cases, and personal notes here..."
             />
           </div>
 
-          {/* Solutions Storage Section with Per-Solution Time & Space Complexity */}
+          {/* Solutions Storage Section */}
           <div className="space-y-3 border-t border-slate-800 pt-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-slate-200 flex items-center gap-1.5 text-xs">

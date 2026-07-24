@@ -21,6 +21,7 @@ import {
   Tag as TagIcon,
   Clock,
   HardDrive,
+  FileText,
 } from 'lucide-react';
 
 interface SolutionTab {
@@ -224,7 +225,7 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* 1. Problem Header Metadata & ALL Topics Badges */}
+          {/* 1. Header Metadata & All Topic Badges */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
@@ -282,19 +283,31 @@ export default function ProblemDetailsPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* 2. Key Observations & Problem Notes (ABOVE CODE) */}
+          {/* 2. Problem Statement & Examples (Auto-Written From URL) */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
-            <h3 className="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-cyan-400" /> Problem Statement, Examples & Observations (Above Code)
+            <h3 className="text-xs sm:text-sm font-bold text-cyan-300 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-cyan-400" /> Problem Statement & Example Test Cases (Auto-Fetched From URL)
+            </h3>
+            <MarkdownEditor
+              value={problem.problemDescription || ''}
+              onChange={(val) => setProblem({ ...problem, problemDescription: val })}
+              placeholder="Auto-fetched problem statement and example test cases..."
+            />
+          </div>
+
+          {/* 3. Key Observations & Personal Notes (Written By User) */}
+          <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3">
+            <h3 className="text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-amber-400" /> Key Observations & Personal Notes (Written By You)
             </h3>
             <MarkdownEditor
               value={problem.notes || ''}
               onChange={(val) => setProblem({ ...problem, notes: val })}
-              placeholder="Store problem description, examples, and key observations here..."
+              placeholder="Write your key observations, tricks, edge cases, and personal notes here..."
             />
           </div>
 
-          {/* 3. Dynamic Solution Storage Section with Per-Solution Complexities */}
+          {/* 4. Dynamic Solution Storage Section with Per-Solution Complexities */}
           <div className="p-4 sm:p-6 bg-slate-900/80 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
               {/* Dynamic Solution Tabs */}
